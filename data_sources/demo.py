@@ -7,7 +7,7 @@ import random
 
 
 class DemoDataSource:
-      """Demo data source that returns sample product data"""
+    """Demo data source that returns sample product data"""
 
     def __init__(self):
               # Sample product data for demo purposes
