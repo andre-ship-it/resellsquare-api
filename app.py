@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, jsonify
 from cache import cache
 from analysis import analyze_market_data
 import os
+import hashlib
 import requests as http_requests
 
 app = Flask(__name__)
@@ -23,9 +24,38 @@ else:
     DATA_SOURCE_LABEL = "ebay"
 
 
+# eBay Marketplace Account Deletion Notification config
+EBAY_VERIFICATION_TOKEN = os.environ.get("EBAY_VERIFICATION_TOKEN", "")
+EBAY_ENDPOINT = os.environ.get("EBAY_ENDPOINT", "")
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/marketplace-delete', methods=['GET', 'POST'])
+def marketplace_delete():
+    """
+    eBay Marketplace Account Deletion/Closure Notification endpoint.
+    GET: Responds to eBay challenge code for endpoint verification.
+    POST: Acknowledges account deletion notifications.
+    """
+    if request.method == 'GET':
+        challenge_code = request.args.get('challenge_code', '')
+        if not challenge_code:
+            return jsonify({'error': 'Missing challenge_code'}), 400
+        verification_token = EBAY_VERIFICATION_TOKEN
+        endpoint = EBAY_ENDPOINT
+        m = hashlib.sha256()
+        m.update(challenge_code.encode('utf-8'))
+        m.update(verification_token.encode('utf-8'))
+        m.update(endpoint.encode('utf-8'))
+        response_hash = m.hexdigest()
+        return jsonify({'challengeResponse': response_hash}), 200
+    else:
+        # POST - acknowledge the account deletion notification
+        return '', 200
 
 
 @app.route('/api/search', methods=['POST'])
