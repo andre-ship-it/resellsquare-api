@@ -19,8 +19,8 @@ if USE_DEMO:
     data_source = DemoDataSource()
     DATA_SOURCE_LABEL = "demo"
 else:
-    from data_sources.demo import DemoDataSource
-    data_source = DemoDataSource()
+    from data_sources.ebay import EbayDataSource
+    data_source = EbayDataSource()
     DATA_SOURCE_LABEL = "ebay"
 
 
