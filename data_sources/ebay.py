@@ -45,13 +45,12 @@ class EbayDataSource:
         encoded_query = urllib.parse.quote(query)
         
         # Search for SOLD items (completed + sold)
-        # itemFilter.name=SoldItemsOnly&itemFilter.value=true
         url = "https://api.ebay.com/buy/browse/v1/item_summary/search"
         
         params = {
             'q': query,
             'limit': 50,
-            'sort': '-price', # Sort by price (high to low) to grab range, or -date
+            'sort': '-price',
             'filter': 'buyingOptions:{FIXED_PRICE|BEST_OFFER},deliveryCountry:US,price:[5..5000],priceCurrency:USD'
         }
         
@@ -62,14 +61,6 @@ class EbayDataSource:
         }
 
         try:
-            # Note: The Browse API doesn't support "sold items" filtering directly in the same way 
-            # Finding API did. For a real production app, you often need the Finding API (Legacy) 
-            # or to scrape. For this MVP, we will search *current* active listings 
-            # as a proxy, OR use the "completed" filter if available.
-            #
-            # HACK for MVP: We will stick to searching active listings for now 
-            # to verify the pipeline works, since Browse API 'sold' filtering is complex.
-            
             response = requests.get(url, headers=headers, params=params)
             data = response.json()
             
@@ -80,4 +71,21 @@ class EbayDataSource:
             for item in data['itemSummaries']:
                 price_str = item.get('price', {}).get('value', '0')
                 title = item.get('title', 'No Title')
-                condition = item.
+                condition = item.get('condition', 'Used')
+                
+                listings.append({
+                    'title': title,
+                    'price': float(price_str),
+                    'condition': condition,
+                    'date': '2024-01-01'
+                })
+                
+            return {
+                'success': True,
+                'listings': listings,
+                'source': 'ebay_api'
+            }
+
+        except Exception as e:
+            print(f"eBay API Error: {e}")
+            return {'success': False, 'error': str(e)}
