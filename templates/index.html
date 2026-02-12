@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ResellSquare Decision Engine</title>
     
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -12,11 +13,28 @@
     <script src="https://link.msgsndr.com/js/form_embed.js"></script>
 
     <style>
-        /* Custom Animations */
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Your Brand Gradient */
+            background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
         
-        /* Scanner Styles */
+        /* Glassmorphism Utilities */
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.7); /* Slate-900 with opacity */
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.8); /* Slate-800 with opacity */
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Scanner Fixes */
         #reader { 
             width: 100%; 
             height: 300px; 
@@ -27,120 +45,129 @@
         }
         #reader > div:last-child { display: none; }
         video { object-fit: cover; width: 100% !important; height: 100% !important; border-radius: 0.5rem; }
+        
+        /* Animations */
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; transform: translateY(10px); }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-50 font-sans min-h-screen">
+<body class="text-slate-50 antialiased selection:bg-purple-500 selection:text-white">
 
-    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+    <nav class="glass-nav sticky top-0 z-50">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <span class="text-xl font-bold text-white">
-                        <span class="bg-green-500 text-slate-900 px-2 py-1 rounded mr-2">R</span>ResellSquare
-                    </span>
+                    <div class="flex items-center gap-2">
+                        <div class="bg-gradient-to-r from-green-400 to-emerald-600 w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/20">
+                            <span class="font-black text-white text-lg">R</span>
+                        </div>
+                        <span class="text-xl font-bold text-white tracking-tight">ResellSquare</span>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <span class="text-xs font-semibold px-2 py-1 bg-slate-700 text-slate-300 rounded-full border border-slate-600">Beta</span>
+                    <span class="text-[10px] font-bold px-3 py-1 bg-white/10 text-white rounded-full border border-white/20 uppercase tracking-wider backdrop-blur-sm">Beta</span>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-3xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <main class="max-w-3xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
         
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-extrabold text-white mb-2">Should I buy this?</h1>
-            <p class="text-slate-400 text-sm">Instant profit check using real eBay sold data.</p>
+        <div class="text-center mb-10 fade-in" style="animation-delay: 0.1s">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-3 tracking-tight drop-shadow-sm">
+                Should I buy this?
+            </h1>
+            <p class="text-blue-100 text-lg font-medium opacity-90">
+                Instant profit check using real eBay sold data.
+            </p>
         </div>
 
-        <div class="bg-slate-800 rounded-xl shadow-lg border border-slate-700 p-6 mb-8">
+        <div class="glass-panel rounded-2xl p-6 mb-8 fade-in" style="animation-delay: 0.2s">
             <form id="searchForm" class="space-y-6">
+                
                 <div>
-                    <label for="query" class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Product / UPC</label>
-                    <div class="relative flex items-center">
+                    <label for="query" class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Product / UPC</label>
+                    <div class="relative flex items-center group">
                         <input type="text" id="query" name="query" 
-                            class="block w-full pl-4 pr-14 py-4 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all" 
+                            class="block w-full pl-4 pr-14 py-4 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none" 
                             placeholder="e.g. AirPods Pro or Scan UPC..." required autofocus>
-                        <button type="button" id="scanBtn" class="absolute right-2 p-2 text-slate-400 hover:text-white bg-slate-600 hover:bg-slate-500 rounded-md transition-colors" title="Scan Barcode">
+                        
+                        <button type="button" id="scanBtn" class="absolute right-2 p-2.5 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-all border border-slate-700 shadow-sm" title="Scan Barcode">
                             <i class="fa-solid fa-barcode text-xl"></i>
                         </button>
                     </div>
                 </div>
+
                 <div class="grid grid-cols-2 gap-6">
                     <div>
-                        <label for="cost_price" class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Your Cost</label>
+                        <label for="cost_price" class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Your Cost</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">$</span>
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-500">$</span>
                             <input type="number" step="0.01" id="cost_price" name="cost_price" 
-                                class="block w-full pl-8 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                                class="block w-full pl-8 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all" 
                                 placeholder="0.00">
                         </div>
                     </div>
+
                     <div>
-                        <label for="shipping_cost" class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Shipping Cost</label>
+                        <label for="shipping_cost" class="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Shipping Cost</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400">$</span>
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-500">$</span>
                             <input type="number" step="0.01" id="shipping_cost" name="shipping_cost" 
-                                class="block w-full pl-8 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                                class="block w-full pl-8 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all" 
                                 placeholder="0" value="0">
                         </div>
                     </div>
                 </div>
-                <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
+
+                <div class="flex bg-slate-900/80 p-1.5 rounded-xl border border-slate-700/50">
                     <label class="flex-1 text-center cursor-pointer">
                         <input type="radio" name="condition" value="all" class="peer sr-only">
-                        <span class="block py-2 text-sm font-medium text-slate-400 rounded-md peer-checked:bg-slate-700 peer-checked:text-white transition-all">All</span>
+                        <span class="block py-2 text-sm font-bold text-slate-400 rounded-lg peer-checked:bg-slate-700 peer-checked:text-white peer-checked:shadow-sm transition-all">All</span>
                     </label>
                     <label class="flex-1 text-center cursor-pointer">
                         <input type="radio" name="condition" value="new" class="peer sr-only">
-                        <span class="block py-2 text-sm font-medium text-slate-400 rounded-md peer-checked:bg-slate-700 peer-checked:text-white transition-all">New</span>
+                        <span class="block py-2 text-sm font-bold text-slate-400 rounded-lg peer-checked:bg-slate-700 peer-checked:text-white peer-checked:shadow-sm transition-all">New</span>
                     </label>
                     <label class="flex-1 text-center cursor-pointer">
                         <input type="radio" name="condition" value="used" class="peer sr-only" checked>
-                        <span class="block py-2 text-sm font-medium text-slate-400 rounded-md peer-checked:bg-slate-700 peer-checked:text-white transition-all">Used</span>
+                        <span class="block py-2 text-sm font-bold text-slate-400 rounded-lg peer-checked:bg-slate-700 peer-checked:text-white peer-checked:shadow-sm transition-all">Used</span>
                     </label>
                 </div>
+
                 <button type="submit" id="analyzeBtn" 
-                    class="w-full py-4 px-4 bg-green-500 hover:bg-green-400 text-slate-900 font-bold rounded-lg shadow-lg hover:shadow-green-500/20 transition-all transform active:scale-[0.98]">
+                    class="w-full py-4 px-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-green-500/30 transition-all transform active:scale-[0.98] border border-white/10">
                     Analyze Profit
                 </button>
             </form>
         </div>
 
-        <div id="scannerModal" class="hidden fixed inset-0 bg-slate-900/95 z-50 flex flex-col items-center justify-center p-4">
-            <div class="bg-white p-4 rounded-lg w-full max-w-md relative shadow-2xl">
-                <button id="closeScanner" class="absolute top-2 right-2 text-slate-500 hover:text-slate-800 z-10 p-2 bg-white/80 rounded-full">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
+        <div id="scannerModal" class="hidden fixed inset-0 bg-slate-900/95 z-50 flex flex-col items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white p-4 rounded-2xl w-full max-w-md relative shadow-2xl border border-white/10">
+                <button id="closeScanner" class="absolute top-3 right-3 text-slate-400 hover:text-slate-800 z-10 p-2 bg-white/90 rounded-full shadow-sm transition-all">
+                    <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
-                <h3 class="text-slate-800 text-lg font-bold mb-4 text-center">Scan Barcode</h3>
-                <div id="reader"></div>
+                <h3 class="text-slate-900 text-lg font-bold mb-4 text-center">Scan Barcode</h3>
+                <div id="reader" class="rounded-xl overflow-hidden shadow-inner bg-black"></div>
                 <div id="scanStatus" class="text-center mt-4">
-                    <p class="text-xs text-slate-500 animate-pulse">Initializing Camera...</p>
+                    <p class="text-xs text-slate-500 font-medium animate-pulse">Initializing Camera...</p>
                 </div>
             </div>
         </div>
         
-        <div id="waitlistModal" class="hidden fixed inset-0 bg-slate-900/95 z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
-            <div class="bg-white p-1 rounded-lg w-full max-w-lg relative shadow-2xl h-[85vh] overflow-hidden">
-                <button id="closeWaitlist" class="absolute top-2 right-2 text-slate-500 hover:text-slate-800 z-50 p-2 bg-white/80 rounded-full">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
+        <div id="waitlistModal" class="hidden fixed inset-0 bg-slate-900/95 z-50 flex flex-col items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl w-full max-w-lg relative shadow-2xl h-[85vh] overflow-hidden">
+                <button id="closeWaitlist" class="absolute top-3 right-3 text-slate-400 hover:text-slate-800 z-50 p-2 bg-white/90 rounded-full shadow-sm">
+                    <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
                 <div class="w-full h-full overflow-y-auto">
                     <iframe
                         src="https://api.leadconnectorhq.com/widget/form/KXnL4GxJTy9gJMmBVwhr"
-                        style="width:100%;height:100%;border:none;border-radius:4px"
+                        style="width:100%;height:100%;border:none;"
                         id="inline-KXnL4GxJTy9gJMmBVwhr" 
                         data-layout="{'id':'INLINE'}"
                         data-trigger-type="alwaysShow"
-                        data-trigger-value=""
-                        data-activation-type="alwaysActivated"
-                        data-activation-value=""
-                        data-deactivation-type="neverDeactivate"
-                        data-deactivation-value=""
                         data-form-name="ResellSquare Amazon FBA Waitlist "
-                        data-height="1008"
-                        data-layout-iframe-id="inline-KXnL4GxJTy9gJMmBVwhr"
-                        data-form-id="KXnL4GxJTy9gJMmBVwhr"
                         title="ResellSquare Amazon FBA Waitlist "
                     ></iframe>
                 </div>
@@ -148,86 +175,103 @@
         </div>
 
         <div id="loading" class="hidden text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-slate-700 border-t-green-500"></div>
-            <p class="mt-4 text-slate-400 text-sm font-medium animate-pulse">Scanning sold listings...</p>
+            <div class="relative">
+                <div class="absolute inset-0 bg-purple-500 blur-xl opacity-20 rounded-full"></div>
+                <div class="relative inline-block animate-spin rounded-full h-12 w-12 border-4 border-slate-700 border-t-purple-500"></div>
+            </div>
+            <p class="mt-6 text-white text-sm font-semibold animate-pulse tracking-wide">Scanning live sold listings...</p>
         </div>
 
-        <div id="resultsArea" class="hidden space-y-6 fade-in">
-            <div id="verdictCard" class="bg-white text-slate-900 rounded-xl shadow-xl overflow-hidden relative">
-                <div class="p-8 text-center">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Recommendation</p>
-                    <h1 id="verdictTitle" class="text-6xl font-black tracking-tighter mb-4">--</h1>
+        <div id="resultsArea" class="hidden space-y-6">
+            
+            <div id="verdictCard" class="bg-white text-slate-900 rounded-2xl shadow-2xl overflow-hidden relative transform transition-all hover:scale-[1.01]">
+                <div class="p-8 text-center relative z-10">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Recommendation</p>
+                    <h1 id="verdictTitle" class="text-6xl sm:text-7xl font-black tracking-tighter mb-4 drop-shadow-sm">--</h1>
                     <p id="verdictReason" class="text-lg font-medium text-slate-600 max-w-md mx-auto leading-relaxed">--</p>
-                    <div class="mt-6 flex justify-center items-center space-x-2">
-                        <span id="confidenceBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">-- Confidence</span>
+                    <div class="mt-6 flex justify-center items-center">
+                        <span id="confidenceBadge" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-wide">-- Confidence</span>
                     </div>
                 </div>
-                <div class="h-2 w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent opacity-50"></div>
+                <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 to-transparent opacity-50 z-0"></div>
             </div>
 
-            <div id="warningSection" class="hidden bg-amber-500/10 border border-amber-500/50 rounded-lg p-4 flex items-start">
-                <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-1 mr-3"></i>
-                <p class="text-sm text-amber-200" id="warningText">Mixed variants detected.</p>
+            <div id="warningSection" class="hidden bg-amber-500/10 border border-amber-500/50 rounded-xl p-4 flex items-start backdrop-blur-md">
+                <i class="fa-solid fa-triangle-exclamation text-amber-400 mt-1 mr-3 text-lg"></i>
+                <p class="text-sm font-medium text-amber-200" id="warningText">Mixed variants detected.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl">LIVE</div>
+                
+                <div class="glass-panel rounded-2xl p-6 relative group overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-bl-xl shadow-lg">LIVE</div>
+                    
                     <div class="flex items-center mb-6">
-                        <div class="w-8 h-8 rounded bg-slate-700 flex items-center justify-center mr-3">
-                            <i class="fa-brands fa-ebay text-white"></i>
+                        <div class="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center mr-3 border border-slate-600">
+                            <i class="fa-brands fa-ebay text-white text-xl"></i>
                         </div>
-                        <span class="font-bold text-white">eBay Flip</span>
+                        <div>
+                            <span class="block font-bold text-white text-lg">eBay Flip</span>
+                            <span class="text-xs text-slate-400">Market Price</span>
+                        </div>
                     </div>
+                    
                     <div class="space-y-3 mb-6">
-                        <div class="flex justify-between items-baseline">
-                            <span class="text-slate-400 text-sm">Market Value</span>
-                            <span class="font-mono text-white text-lg" id="ebayPrice">--</span>
+                        <div class="flex justify-between items-baseline p-2 rounded hover:bg-white/5 transition-colors">
+                            <span class="text-slate-400 text-sm font-medium">Sold Avg</span>
+                            <span class="font-mono text-white text-lg font-bold" id="ebayPrice">--</span>
                         </div>
-                        <div class="flex justify-between items-baseline">
-                            <span class="text-slate-500 text-xs">Est. Fees</span>
+                        <div class="flex justify-between items-baseline p-2 rounded hover:bg-white/5 transition-colors">
+                            <span class="text-slate-400 text-xs">Est. Fees</span>
                             <span class="font-mono text-red-400 text-sm" id="ebayFees">--</span>
                         </div>
-                        <div class="flex justify-between items-baseline">
-                            <span class="text-slate-500 text-xs">Shipping</span>
+                        <div class="flex justify-between items-baseline p-2 rounded hover:bg-white/5 transition-colors">
+                            <span class="text-slate-400 text-xs">Shipping</span>
                             <span class="font-mono text-red-400 text-sm" id="ebayShipping">--</span>
                         </div>
                     </div>
-                    <div class="pt-4 border-t border-slate-700">
+
+                    <div class="pt-4 border-t border-slate-700/50">
                         <div class="flex justify-between items-center">
-                            <span class="text-slate-300 font-medium">Net Profit</span>
+                            <span class="text-slate-300 font-bold">Net Profit</span>
                             <div class="text-right">
-                                <span class="block text-2xl font-bold text-green-400" id="ebayProfit">--</span>
-                                <span class="text-xs font-mono text-slate-500" id="ebayRoi">-- ROI</span>
+                                <span class="block text-3xl font-black text-green-400 tracking-tight drop-shadow-md" id="ebayProfit">--</span>
+                                <span class="text-xs font-mono text-slate-500 font-bold" id="ebayRoi">-- ROI</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 relative opacity-60 hover:opacity-100 transition-opacity">
-                    <div class="absolute top-0 right-0 bg-slate-700 text-slate-400 text-[10px] font-bold px-2 py-1 rounded-bl">SOON</div>
+                <div class="glass-panel rounded-2xl p-6 relative opacity-80 hover:opacity-100 transition-all border-dashed border-slate-600 hover:border-blue-500/50 group">
+                    <div class="absolute top-0 right-0 bg-slate-700 text-slate-300 text-[10px] font-bold px-3 py-1.5 rounded-bl-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">WAITLIST</div>
+                    
                     <div class="flex items-center mb-6">
-                        <div class="w-8 h-8 rounded bg-slate-700 flex items-center justify-center mr-3">
-                            <i class="fa-brands fa-amazon text-white"></i>
+                        <div class="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center mr-3 border border-slate-600">
+                            <i class="fa-brands fa-amazon text-white text-xl"></i>
                         </div>
-                        <span class="font-bold text-slate-300">Amazon FBA</span>
+                        <div>
+                            <span class="block font-bold text-slate-200 text-lg">Amazon FBA</span>
+                            <span class="text-xs text-slate-500">Coming Soon</span>
+                        </div>
                     </div>
-                    <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+                    
+                    <p class="text-sm text-slate-400 mb-6 leading-relaxed">
                         Compare against FBA fees, check sales velocity, and verify gating status.
                     </p>
-                    <button id="joinWaitlistBtn" class="w-full py-2 border border-slate-600 rounded text-xs font-bold text-slate-400 hover:bg-slate-700 transition-colors">
-                        Join Waitlist
+
+                    <button id="joinWaitlistBtn" class="w-full py-3 border border-slate-600 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition-all uppercase tracking-wide">
+                        Join Beta Waitlist
                     </button>
                 </div>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-slate-800">
+            <div class="mt-8 pt-6 border-t border-white/10">
                 <details class="group">
-                    <summary class="flex justify-between items-center cursor-pointer list-none text-slate-600 hover:text-slate-400 text-xs font-mono uppercase tracking-wider">
+                    <summary class="flex justify-between items-center cursor-pointer list-none text-slate-400 hover:text-white text-xs font-mono uppercase tracking-wider transition-colors">
                         <span>Analysis Debugger</span>
                         <span class="transition group-open:rotate-180"><i class="fa-solid fa-chevron-down"></i></span>
                     </summary>
-                    <div class="text-slate-500 text-xs mt-4 space-y-2 font-mono bg-slate-900/50 p-4 rounded border border-slate-800">
+                    <div class="text-slate-400 text-xs mt-4 space-y-2 font-mono bg-black/30 p-4 rounded-xl border border-white/5 backdrop-blur-md">
                         <div class="flex justify-between"><span>Median Raw:</span> <span id="debugMedian" class="text-white">--</span></div>
                         <div class="flex justify-between"><span>Comps Used:</span> <span id="debugVolume" class="text-white">--</span></div>
                         <div class="flex justify-between"><span>Verdict:</span> <span id="debugVerdict" class="text-white">--</span></div>
@@ -245,23 +289,25 @@
         const scanStatus = document.getElementById('scanStatus');
         let html5QrCode = null;
 
-        scanBtn.addEventListener('click', () => {
-            scannerModal.classList.remove('hidden');
-            scanStatus.innerHTML = '<p class="text-xs text-slate-500 animate-pulse">Starting Camera...</p>';
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("reader");
-            }
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            html5QrCode.start(
-                { facingMode: "environment" }, 
-                config, 
-                onScanSuccess, 
-                (errorMessage) => {}
-            ).catch(err => {
-                console.error(err);
-                scanStatus.innerHTML = `<p class="text-xs text-red-500">Camera Error: ${err}. Check permissions.</p>`;
+        if (scanBtn) {
+            scanBtn.addEventListener('click', () => {
+                scannerModal.classList.remove('hidden');
+                scanStatus.innerHTML = '<p class="text-xs text-slate-500 animate-pulse">Starting Camera...</p>';
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("reader");
+                }
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config, 
+                    onScanSuccess, 
+                    (errorMessage) => {}
+                ).catch(err => {
+                    console.error(err);
+                    scanStatus.innerHTML = `<p class="text-xs text-red-500">Camera Error: ${err}. Check permissions.</p>`;
+                });
             });
-        });
+        }
 
         function onScanSuccess(decodedText, decodedResult) {
             if (html5QrCode) {
@@ -292,10 +338,9 @@
         const waitlistModal = document.getElementById('waitlistModal');
         const closeWaitlist = document.getElementById('closeWaitlist');
 
-        // Note: Event listener is attached dynamically since button is inside resultsArea which might be hidden initially
-        // But since it's hardcoded in HTML now, we can attach directly.
         if(waitlistBtn) {
-            waitlistBtn.addEventListener('click', () => {
+            waitlistBtn.addEventListener('click', (e) => {
+                e.preventDefault(); 
                 waitlistModal.classList.remove('hidden');
             });
         }
@@ -312,92 +357,3 @@
             const results = document.getElementById('resultsArea');
             const warningSec = document.getElementById('warningSection');
             const conditionVal = document.querySelector('input[name="condition"]:checked').value;
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-            loading.classList.remove('hidden');
-            results.classList.add('hidden');
-            warningSec.classList.add('hidden');
-
-            const formData = {
-                query: document.getElementById('query').value,
-                cost_price: parseFloat(document.getElementById('cost_price').value) || 0,
-                shipping_cost: parseFloat(document.getElementById('shipping_cost').value) || 0,
-                condition: conditionVal
-            };
-
-            try {
-                const response = await fetch('/api/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                if (!response.ok) throw new Error("API Connection Failed");
-                const data = await response.json();
-                
-                // RENDER
-                const verdictCard = document.getElementById('verdictCard');
-                const verdictTitle = document.getElementById('verdictTitle');
-                verdictTitle.className = "text-6xl font-black tracking-tighter mb-4";
-                if (data.verdict === 'BUY') {
-                    verdictTitle.classList.add('text-green-600');
-                    verdictCard.className = "bg-white text-slate-900 rounded-xl shadow-xl overflow-hidden relative border-b-8 border-green-500";
-                } else if (data.verdict === 'SKIP') {
-                    verdictTitle.classList.add('text-red-600');
-                    verdictCard.className = "bg-white text-slate-900 rounded-xl shadow-xl overflow-hidden relative border-b-8 border-red-500";
-                } else {
-                    verdictTitle.classList.add('text-amber-500');
-                    verdictCard.className = "bg-white text-slate-900 rounded-xl shadow-xl overflow-hidden relative border-b-8 border-amber-400";
-                }
-                verdictTitle.innerText = data.verdict || "UNKNOWN";
-                document.getElementById('verdictReason').innerText = data.confidence_reason || "No data.";
-                
-                const confBadge = document.getElementById('confidenceBadge');
-                confBadge.innerText = (data.confidence || 'Low') + " Confidence";
-                confBadge.className = (data.confidence || '').toLowerCase() === 'high' 
-                    ? "px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200"
-                    : "px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200";
-
-                if (data.variant_warning) {
-                    warningSec.classList.remove('hidden');
-                    document.getElementById('warningText').innerText = data.variant_warning_text || "Mixed variants detected.";
-                }
-
-                const formatMoney = (num) => num ? '$' + parseFloat(num).toFixed(2) : '$0.00';
-                document.getElementById('ebayPrice').innerText = formatMoney(data.metrics?.median);
-                document.getElementById('ebayFees').innerText = '-' + formatMoney(data.financials?.fees);
-                document.getElementById('ebayShipping').innerText = '-' + formatMoney(data.financials?.shipping);
-                
-                const profitEl = document.getElementById('ebayProfit');
-                const profitVal = parseFloat(data.financials?.profit || 0);
-                profitEl.innerText = formatMoney(profitVal);
-                profitEl.className = profitVal > 0 
-                    ? "block text-2xl font-bold text-green-400" 
-                    : "block text-2xl font-bold text-red-400";
-
-                document.getElementById('ebayRoi').innerText = (data.financials?.roi || 0) + '% ROI';
-                document.getElementById('debugMedian').innerText = data.metrics?.median;
-                document.getElementById('debugVolume').innerText = data.metrics?.volume;
-                document.getElementById('debugVerdict').innerText = data.verdict;
-
-                loading.classList.add('hidden');
-                results.classList.remove('hidden');
-
-                // Re-attach waitlist listener if results area was re-rendered (though here we just hide/show)
-                const newWaitlistBtn = document.getElementById('joinWaitlistBtn');
-                newWaitlistBtn.addEventListener('click', () => {
-                    waitlistModal.classList.remove('hidden');
-                });
-
-            } catch (err) {
-                console.error(err);
-                alert("Connection error. Please try again.");
-                loading.classList.add('hidden');
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Analyze Profit';
-            }
-        });
-    </script>
-</body>
-</html>
