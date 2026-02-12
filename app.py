@@ -5,7 +5,7 @@ from analysis import analyze_market_data
 
 app = Flask(__name__)
 
-# Data Source Logic
+# Config
 USE_DEMO = os.environ.get("USE_DEMO", "false").lower() == "true"
 if USE_DEMO:
     from data_sources.demo import DemoDataSource
@@ -26,7 +26,7 @@ def search():
         cost = float(data.get('cost_price', 0) or 0)
         shipping_cost = float(data.get('shipping_cost', 0) or 0)
 
-        # 1. Fetch Data
+        # 1. Fetch
         cache_key = f"market:{search_term.lower()}"
         market_data = cache.get(cache_key)
         if not market_data:
@@ -34,24 +34,22 @@ def search():
             if market_data.get('success'):
                 cache.set(cache_key, market_data)
 
-        # 2. Run Analysis
+        # 2. Analyze
         analysis = analyze_market_data(market_data, cost=cost, shipping_cost=shipping_cost)
 
-        # 3. The Bridge (Synchronizing with index.html)
+        # 3. Synchronized Response
         return jsonify({
             "success": True,
             "verdict": analysis['verdict'],
             "color_code": analysis['color_code'],
-            "tip": analysis['tip'],
             "best_platform": analysis['best_platform'],
             "time_to_sell": analysis['time_to_sell'],
             "pricing_tiers": analysis['pricing_tiers'],
             "recent_sales": market_data.get('recent_sales', []),
             "financials": {
-                "profit": analysis['net_profit'],  # <-- Mapped from analysis.py
-                "roi": analysis['roi']             # <-- Mapped from analysis.py
-            },
-            "metrics": analysis['metrics']
+                "profit": analysis['net_profit'],
+                "roi": analysis['roi']
+            }
         })
 
     except Exception as e:
