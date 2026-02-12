@@ -7,11 +7,9 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://unpkg.com">
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         body {
@@ -19,7 +17,6 @@
             background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
             background-attachment: fixed;
             min-height: 100vh;
-            margin: 0;
         }
         .glass-nav { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
         .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
@@ -104,6 +101,14 @@
                 <span id="confidenceBadge" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 border uppercase tracking-wide">-- Confidence</span>
             </div>
 
+            <div id="feedbackSection" class="flex flex-col items-center py-2">
+                <p class="text-xs font-bold text-blue-100/60 uppercase tracking-widest mb-3">Was this result accurate?</p>
+                <div class="flex gap-4">
+                    <button onclick="sendFeedback('accurate')" class="px-6 py-2 bg-white/10 hover:bg-green-500/20 border border-white/20 rounded-xl text-sm transition-all">👍 Yes</button>
+                    <button onclick="sendFeedback('inaccurate')" class="px-6 py-2 bg-white/10 hover:bg-red-500/20 border border-white/20 rounded-xl text-sm transition-all">👎 No</button>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="glass-panel rounded-2xl p-6 relative">
                     <div class="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Live</div>
@@ -124,7 +129,8 @@
                 </div>
                 <div class="glass-panel rounded-2xl p-6 opacity-70 border-dashed border-slate-600">
                     <span class="font-bold text-lg text-slate-400">Amazon FBA</span>
-                    <p class="text-sm text-slate-400 mt-2">Coming soon to the decision engine.</p>
+                    <p class="text-sm text-slate-400 mt-2">Analyze FBA fees and sales rank automatically.</p>
+                    <button id="joinWaitlistBtn" class="mt-4 w-full py-2 border border-slate-600 rounded-lg text-xs font-bold uppercase hover:bg-slate-700 transition-all">Join Waitlist</button>
                 </div>
             </div>
         </div>
@@ -135,7 +141,14 @@
             <button id="closeScanner" class="absolute -top-12 right-0 text-white p-2 text-3xl">&times;</button>
             <h3 class="text-slate-900 text-xl font-bold mb-4 text-center">Scan Barcode</h3>
             <div id="reader" class="mx-auto"></div>
-            <div id="scanStatus" class="text-center mt-4 text-sm text-slate-500 font-medium">Initializing Camera...</div>
+            <div id="scanStatus" class="text-center mt-4 text-sm text-slate-500 font-medium">Initializing...</div>
+        </div>
+    </div>
+
+    <div id="waitlistModal" class="hidden fixed inset-0 bg-slate-900/95 z-[60] flex flex-col items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-lg relative shadow-2xl h-[85vh] overflow-hidden">
+            <button id="closeWaitlist" class="absolute top-3 right-3 text-slate-400 hover:text-slate-800 z-50 p-2 text-xl">&times;</button>
+            <iframe src="https://api.leadconnectorhq.com/widget/form/KXnL4GxJTy9gJMmBVwhr" style="width:100%;height:100%;border:none;"></iframe>
         </div>
     </div>
 
@@ -144,8 +157,12 @@
         const scanBtn = document.getElementById('scanBtn');
         const scannerModal = document.getElementById('scannerModal');
         const closeScanner = document.getElementById('closeScanner');
+        const waitlistModal = document.getElementById('waitlistModal');
+        const closeWaitlist = document.getElementById('closeWaitlist');
+        const joinWaitlistBtn = document.getElementById('joinWaitlistBtn');
         let html5QrCode;
 
+        // Scanner
         scanBtn.addEventListener('click', async () => {
             scannerModal.classList.remove('hidden');
             try {
@@ -155,7 +172,7 @@
                     stopScanner();
                 });
                 document.getElementById('scanStatus').innerText = "Camera Active";
-            } catch (err) { document.getElementById('scanStatus').innerText = "Camera Error: Check Permissions"; }
+            } catch (err) { document.getElementById('scanStatus').innerText = "Camera Error"; }
         });
 
         async function stopScanner() {
@@ -164,6 +181,17 @@
         }
         closeScanner.addEventListener('click', stopScanner);
 
+        // Waitlist
+        joinWaitlistBtn.addEventListener('click', () => waitlistModal.classList.remove('hidden'));
+        closeWaitlist.addEventListener('click', () => waitlistModal.classList.add('hidden'));
+
+        // Feedback
+        function sendFeedback(type) {
+            console.log("Feedback:", type);
+            document.getElementById('feedbackSection').innerHTML = `<p class="text-xs font-bold text-green-300 uppercase tracking-widest">Thanks for the feedback!</p>`;
+        }
+
+        // Search
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('analyzeBtn');
@@ -199,7 +227,7 @@
                 
                 loading.classList.add('hidden');
                 results.classList.remove('hidden');
-            } catch (err) { alert("Analysis failed. Try again."); }
+            } catch (err) { alert("Analysis failed."); }
             finally { btn.disabled = false; btn.innerText = "Analyze Profit"; }
         });
     </script>
