@@ -3,176 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>ResellSquare | Decision Intelligence</title>
-    
-    <link rel="manifest" href="/static/manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://resellsquare.com/logo192.png">
+    <title>ResellSquare | Premium Selling Intelligence</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #0f172a; /* Sleek dark mode base */
-            min-height: 100vh;
-            color: white;
-        }
-        .app-container {
-            background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
-            min-height: 100vh;
-        }
-        .glass-nav { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .glass-card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; min-height: 100vh; color: white; }
+        .app-container { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); min-height: 100vh; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .inner-subcard { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); }
         
-        /* Tactical Verdict Styling */
-        #verdictCard { transform: scale(1); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .price-chip { transition: all 0.2s ease; border: 1px solid rgba(255,255,255,0.1); }
-        .price-chip.active { background: white; color: #1e293b; border-color: white; transform: translateY(-2px); font-weight: 800; }
+        /* Premium Accents */
+        .btn-green { background: #22c55e; box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.4); }
+        .price-chip.active { background: #3b82f6; color: white; border-color: #60a5fa; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
         
-        .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
-        }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        /* Animations */
+        .fade-up { animation: fadeUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .velocity-bar { transition: width 1.5s cubic-bezier(0.65, 0, 0.35, 1); }
     </style>
 </head>
 <body class="antialiased">
 
-    <div class="app-container">
-        <nav class="glass-nav sticky top-0 z-50">
-            <div class="max-w-xl mx-auto px-6 h-16 flex justify-between items-center">
+    <div class="app-container pb-12">
+        <nav class="sticky top-0 z-50 px-6 py-4 bg-slate-900/50 backdrop-blur-md border-b border-white/5">
+            <div class="max-w-xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-2">
-                    <div class="bg-green-500 w-8 h-8 rounded-lg flex items-center justify-center font-black shadow-lg">R</div>
+                    <div class="bg-green-500 w-8 h-8 rounded-lg flex items-center justify-center font-black">R</div>
                     <span class="text-xl font-black tracking-tight">ResellSquare</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-bold px-2 py-1 bg-white/10 rounded border border-white/20">BETA 2.0</span>
-                </div>
+                <span class="text-[10px] font-black opacity-40 uppercase tracking-[0.3em]">Decision Engine v2.1</span>
             </div>
         </nav>
 
         <main class="max-w-xl mx-auto px-6 py-8">
             
-            <div class="glass-card rounded-[2rem] p-6 mb-8 fade-in">
+            <div class="glass-card rounded-[2.5rem] p-8 mb-8 fade-up">
                 <form id="searchForm" class="space-y-6">
                     <div class="relative">
-                        <label class="block text-[10px] font-black text-blue-200 uppercase tracking-[0.2em] mb-3 ml-1">Identify Product</label>
-                        <div class="relative flex items-center">
-                            <input type="text" id="query" class="block w-full pl-5 pr-14 py-5 bg-slate-900/60 border border-white/10 rounded-2xl text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-white/30 transition-all text-lg" placeholder="Scan or type name..." required>
-                            <button type="button" id="scanBtn" class="absolute right-2 p-3.5 text-white bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 transition-colors">
-                                <i class="fa-solid fa-barcode text-xl"></i>
-                            </button>
-                        </div>
+                        <input type="text" id="query" class="w-full pl-6 pr-14 py-5 bg-slate-900/80 border border-white/10 rounded-2xl text-white placeholder-slate-500 outline-none focus:border-blue-500 transition-all text-lg font-medium" placeholder="Product name or UPC..." required>
+                        <button type="button" id="scanBtn" class="absolute right-3 top-2.5 p-3 text-slate-400 hover:text-white transition-colors">
+                            <i class="fa-solid fa-barcode text-2xl"></i>
+                        </button>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <label class="block text-[10px] font-black text-blue-200 uppercase tracking-widest ml-1">Cost</label>
-                            <input type="number" step="0.01" id="cost_price" class="w-full px-5 py-4 bg-slate-900/60 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-white/30" placeholder="0.00">
+                        <div class="inner-subcard rounded-2xl p-4">
+                            <p class="text-[9px] font-black text-slate-500 uppercase mb-2 tracking-widest">Buy Price</p>
+                            <input type="number" step="0.01" id="cost_price" class="bg-transparent w-full text-xl font-bold outline-none text-white" placeholder="0.00">
                         </div>
-                        <div class="space-y-2">
-                            <label class="block text-[10px] font-black text-blue-200 uppercase tracking-widest ml-1">Shipping</label>
-                            <input type="number" step="0.01" id="shipping_cost" class="w-full px-5 py-4 bg-slate-900/60 border border-white/10 rounded-xl text-white outline-none focus:ring-2 focus:ring-white/30" value="0">
+                        <div class="inner-subcard rounded-2xl p-4">
+                            <p class="text-[9px] font-black text-slate-500 uppercase mb-2 tracking-widest">Shipping</p>
+                            <input type="number" step="0.01" id="shipping_cost" class="bg-transparent w-full text-xl font-bold outline-none text-white" value="0.00">
                         </div>
                     </div>
 
-                    <button type="submit" id="analyzeBtn" class="w-full py-5 bg-white text-slate-900 font-black text-lg rounded-2xl shadow-2xl hover:bg-slate-100 transition-all active:scale-[0.98] uppercase tracking-tighter">
+                    <button type="submit" id="analyzeBtn" class="w-full py-5 btn-green text-white font-black text-lg rounded-2xl transition-all active:scale-[0.98] uppercase tracking-wider">
                         What should I do?
                     </button>
                 </form>
             </div>
 
-            <div id="loading" class="hidden py-20 text-center">
-                <div class="inline-block relative">
-                    <div class="animate-spin rounded-full h-16 w-16 border-4 border-white/10 border-t-white"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-bolt text-white animate-pulse"></i>
-                    </div>
-                </div>
-                <p class="mt-6 text-xs font-black text-white/60 uppercase tracking-[0.3em]">Processing Live Solds</p>
-            </div>
-
-            <div id="resultsArea" class="hidden space-y-6 fade-in">
+            <div id="resultsArea" class="hidden space-y-6 fade-up">
                 
-                <div id="verdictCard" class="bg-white rounded-[2.5rem] p-10 text-center shadow-2xl">
-                    <div class="inline-block px-4 py-1.5 bg-slate-100 rounded-full mb-4">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Action Recommendation</p>
-                    </div>
+                <div class="bg-white rounded-[3rem] p-10 text-center shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2" id="verdictTopBar"></div>
+                    
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Market Consensus</p>
                     <h1 id="verdictTitle" class="text-6xl font-black text-slate-900 mb-8 tracking-tighter italic">LIST IT</h1>
                     
-                    <div class="grid grid-cols-2 gap-4 mb-8">
-                        <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-50 rounded-3xl p-6 border border-slate-100">
                             <p class="text-[9px] text-slate-400 font-black uppercase mb-1">Target Price</p>
-                            <p id="displayPrice" class="text-3xl font-black text-slate-900 tabular-nums">$0.00</p>
+                            <p id="displayPrice" class="text-4xl font-black text-slate-900">$0.00</p>
                         </div>
-                        <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                        <div class="bg-slate-50 rounded-3xl p-6 border border-slate-100">
                             <p class="text-[9px] text-slate-400 font-black uppercase mb-1">Best Platform</p>
-                            <p id="bestPlatform" class="text-lg font-black text-blue-600">eBay</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-center gap-3">
-                        <div class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-xl text-xs font-bold">
-                            <i class="fa-regular fa-clock"></i>
-                            <span>Sale Speed: <span id="saleTime" class="text-blue-900">2-4 weeks</span></span>
+                            <p id="bestPlatform" class="text-xl font-black text-blue-600">eBay</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-card rounded-3xl p-6">
-                    <div class="flex justify-between items-center mb-5">
-                        <h4 class="text-[10px] font-black text-blue-200 uppercase tracking-widest">Pricing Intelligence</h4>
-                        <i class="fa-solid fa-circle-info text-blue-200/50 text-xs"></i>
-                    </div>
-                    <div class="flex p-1.5 bg-slate-900/40 rounded-2xl border border-white/5" id="priceToggles">
-                        <button onclick="updatePrice('fast')" id="btn-fast" class="price-chip flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase">Fast Sale</button>
-                        <button onclick="updatePrice('balanced')" id="btn-balanced" class="price-chip flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase active">Balanced</button>
-                        <button onclick="updatePrice('max')" id="btn-max" class="price-chip flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase">Max Profit</button>
-                    </div>
-                </div>
-
-                <div class="px-2 text-center">
-                    <div class="relative py-6">
-                        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/10"></div></div>
-                        <div class="relative bg-transparent px-4">
-                            <p id="tipText" class="text-blue-50 font-medium italic text-lg leading-relaxed">"The data shows strong demand and healthy margins. This is a clear winner."</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-center gap-3 opacity-40">
-                        <div class="h-1 w-1 bg-white rounded-full"></div>
-                        <p id="confidenceText" class="text-[10px] font-black uppercase tracking-[0.2em]">Based on -- data points</p>
-                        <div class="h-1 w-1 bg-white rounded-full"></div>
-                    </div>
-                </div>
-
-                <div class="p-6 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-all">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center shadow-lg">
-                            <i class="fa-solid fa-rocket text-white"></i>
-                        </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-card rounded-[2rem] p-6 flex flex-col justify-between">
                         <div>
-                            <p class="text-[10px] font-black text-blue-200 uppercase tracking-widest">Up Next</p>
-                            <p class="font-bold text-white">Amazon FBA Pro Tools</p>
+                            <p class="text-[9px] font-black text-blue-200 uppercase tracking-widest mb-4">Demand Velocity</p>
+                            <p id="saleTime" class="text-xl font-bold text-white mb-2">--</p>
+                            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                <div id="velocityBar" class="velocity-bar h-full bg-blue-500" style="width: 0%"></div>
+                            </div>
                         </div>
+                        <p class="text-[10px] text-slate-400 mt-4">Est. time to sell</p>
                     </div>
-                    <i class="fa-solid fa-chevron-right text-white/30 group-hover:translate-x-1 transition-transform"></i>
+
+                    <div class="glass-card rounded-[2rem] p-6">
+                        <p class="text-[9px] font-black text-blue-200 uppercase tracking-widest mb-4">Est. Net Profit</p>
+                        <p id="netProfit" class="text-3xl font-black text-green-400 mb-1">$0.00</p>
+                        <p id="roiText" class="text-[10px] font-bold text-slate-400">0% ROI</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-[2rem] p-6">
+                    <p class="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-4">Strategic Pricing</p>
+                    <div class="flex p-1 bg-slate-900/60 rounded-2xl border border-white/5">
+                        <button onclick="updatePrice('fast')" id="btn-fast" class="price-chip flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition-all">Fast Sale</button>
+                        <button onclick="updatePrice('balanced')" id="btn-balanced" class="price-chip flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition-all active">Balanced</button>
+                        <button onclick="updatePrice('max')" id="btn-max" class="price-chip flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition-all">Max Profit</button>
+                    </div>
+                </div>
+
+                <div class="p-8 text-center italic text-blue-50/80 text-lg leading-relaxed font-medium">
+                    <span class="opacity-30 text-4xl block mb-2">“</span>
+                    <span id="tipText">--</span>
                 </div>
 
             </div>
         </main>
     </div>
 
-    <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         let currentPrices = {};
-
+        
         function updatePrice(tier) {
             document.getElementById('displayPrice').innerText = `$${currentPrices[tier].toFixed(2)}`;
             document.querySelectorAll('.price-chip').forEach(btn => btn.classList.remove('active'));
@@ -181,13 +135,11 @@
 
         document.getElementById('searchForm').onsubmit = async (e) => {
             e.preventDefault();
-            const loading = document.getElementById('loading');
             const results = document.getElementById('resultsArea');
             const btn = document.getElementById('analyzeBtn');
 
+            btn.innerText = "Analyzing Market...";
             btn.disabled = true;
-            loading.classList.remove('hidden');
-            results.classList.add('hidden');
 
             try {
                 const response = await fetch('/api/search', {
@@ -203,28 +155,27 @@
                 const data = await response.json();
                 currentPrices = data.pricing_tiers;
 
+                // Update UI
                 document.getElementById('verdictTitle').innerText = data.verdict;
+                document.getElementById('verdictTitle').style.color = data.color_code;
+                document.getElementById('verdictTopBar').style.backgroundColor = data.color_code;
                 document.getElementById('bestPlatform').innerText = data.best_platform;
                 document.getElementById('saleTime').innerText = data.time_to_sell;
-                document.getElementById('tipText').innerText = `"${data.tip}"`;
-                document.getElementById('confidenceText').innerText = data.metrics.confidence_msg;
+                document.getElementById('tipText').innerText = data.tip;
+                document.getElementById('netProfit').innerText = `$${data.financials?.profit.toFixed(2) || '0.00'}`;
+                document.getElementById('roiText').innerText = `${data.financials?.roi || 0}% ROI`;
                 
-                // Professional Color Logic
-                const card = document.getElementById('verdictCard');
-                card.className = "bg-white rounded-[2.5rem] p-10 text-center shadow-2xl transition-all border-b-[12px]";
-                card.style.borderBottomColor = data.color_code;
-                document.getElementById('verdictTitle').style.color = data.color_code;
+                // Animate Velocity Bar
+                const velocityMap = { "1–2 weeks": 90, "2–4 weeks": 65, "4–8 weeks": 35, "May take months": 15 };
+                document.getElementById('velocityBar').style.width = (velocityMap[data.time_to_sell] || 10) + "%";
 
                 updatePrice('balanced');
-                loading.classList.add('hidden');
                 results.classList.remove('hidden');
                 results.scrollIntoView({ behavior: 'smooth' });
 
-            } catch (err) { alert("Data error. Please try again."); }
-            finally { btn.disabled = false; }
+            } catch (err) { alert("Market Error. Try again."); }
+            finally { btn.innerText = "What should I do?"; btn.disabled = false; }
         };
-
-        // Scanner initialization (Same as before)
     </script>
 </body>
 </html>
