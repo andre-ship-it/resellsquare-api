@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>ResellSquare | Your Selling Assistant</title>
+    <title>ResellSquare | Decision Intelligence</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,6 +25,8 @@
         .tabular { font-variant-numeric: tabular-nums; }
         .social-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
         .social-btn:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-3px); }
+        #reader { width: 100% !important; border-radius: 1.5rem; overflow: hidden; background: #000; }
+        .scanner-overlay { border: 2px solid rgba(255,255,255,0.1); border-radius: 2rem; }
     </style>
 </head>
 <body class="antialiased">
@@ -102,69 +107,83 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-card rounded-[2rem] p-6 flex flex-col justify-between">
+                        <div>
+                            <p class="text-[9px] font-black text-blue-200 uppercase tracking-widest mb-4">Demand Velocity</p>
+                            <p id="saleTime" class="text-xl font-bold text-white mb-2">--</p>
+                            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                <div id="velocityBar" class="h-full bg-blue-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-blue-100/40 mt-4 italic">Est. time to sell</p>
+                    </div>
                     <div class="glass-card rounded-[2rem] p-6">
                         <p class="text-[9px] font-black text-blue-200 uppercase tracking-widest mb-4">Est. Net Profit</p>
                         <p id="netProfit" class="text-3xl font-black text-green-400 mb-1 tabular">$0.00</p>
                         <p id="roiText" class="text-[10px] font-bold text-blue-100/40">0% ROI</p>
                     </div>
-                    <div class="glass-card rounded-[2rem] p-6">
-                        <p class="text-[9px] font-black text-blue-200 uppercase tracking-widest mb-4">Sale Velocity</p>
-                        <p id="saleTime" class="text-xl font-bold text-white mb-2">--</p>
-                        <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden"><div id="velocityBar" class="h-full bg-blue-500" style="width: 0%"></div></div>
-                    </div>
                 </div>
 
                 <div class="glass-card rounded-[2rem] p-6">
-                    <p class="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-4">Pricing Strategy</p>
+                    <p class="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-4">Strategic Pricing</p>
                     <div class="flex p-1 bg-slate-900/60 rounded-2xl border border-white/5">
-                        <button onclick="updatePrice('fast')" id="btn-fast" class="price-chip flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition-all">Fast</button>
+                        <button onclick="updatePrice('fast')" id="btn-fast" class="price-chip flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition-all">Fast Sale</button>
                         <button onclick="updatePrice('balanced')" id="btn-balanced" class="price-chip flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition-all active">Balanced</button>
-                        <button onclick="updatePrice('max')" id="btn-max" class="price-chip flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition-all">Max</button>
+                        <button onclick="updatePrice('max')" id="btn-max" class="price-chip flex-1 py-3 rounded-xl text-[10px] font-bold uppercase transition-all">Max Profit</button>
                     </div>
                 </div>
 
                 <div class="glass-card rounded-[2rem] p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h4 class="text-[10px] font-black text-blue-200 uppercase tracking-widest">Evidence Feed</h4>
-                        <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-blue-100/40 font-bold uppercase">Live Sold</span>
+                        <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-blue-100/40 font-bold uppercase">Live Comps</span>
                     </div>
                     <div id="compsList" class="space-y-3"></div>
                 </div>
             </div>
 
-            <div class="mt-12 text-center">
-                <p class="text-[10px] font-black text-blue-200 uppercase tracking-[0.3em] mb-6">Join the Community</p>
-                <div class="flex justify-center gap-4">
-                    <a href="https://twitter.com/resellsquare" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg">
-                        <i class="fa-brands fa-x-twitter"></i>
-                    </a>
-                    <a href="https://instagram.com/resellsquare" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg">
-                        <i class="fa-brands fa-instagram"></i>
-                    </a>
-                    <a href="https://discord.gg/resellsquare" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg">
-                        <i class="fa-brands fa-discord"></i>
-                    </a>
-                    <a href="https://tiktok.com/@resellsquare" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg">
-                        <i class="fa-brands fa-tiktok"></i>
-                    </a>
+            <div id="scannerModal" class="hidden fixed inset-0 bg-slate-900/95 z-[70] flex flex-col items-center justify-center p-6">
+                <div class="w-full max-w-md space-y-6">
+                    <div class="flex justify-between items-center text-white">
+                        <h3 class="text-sm font-black uppercase tracking-widest">Vision Scanner</h3>
+                        <button id="closeScanner" class="text-4xl font-light">&times;</button>
+                    </div>
+                    <div class="scanner-overlay overflow-hidden shadow-2xl"><div id="reader"></div></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button id="barcodeMode" class="py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-400">Barcode</button>
+                        <button id="imageMode" class="py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 opacity-40">Photo (BETA)</button>
+                    </div>
                 </div>
-                <p class="mt-8 text-[9px] font-bold text-white/20 uppercase tracking-widest">© 2026 ResellSquare Decision Intelligence</p>
+            </div>
+
+            <div class="mt-12 text-center pb-8">
+                <div class="flex justify-center gap-4 mb-8">
+                    <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg"><i class="fa-brands fa-discord"></i></a>
+                </div>
+                <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest">© 2026 ResellSquare Decision Intelligence</p>
             </div>
         </main>
     </div>
 
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         let currentPrices = {};
+        let html5QrCode;
+
+        // Pricing logic
         function updatePrice(tier) {
             document.getElementById('displayPrice').innerText = `$${currentPrices[tier].toFixed(2)}`;
             document.querySelectorAll('.price-chip').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`btn-${tier}`).classList.add('active');
         }
 
+        // Search logic
         document.getElementById('searchForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('analyzeBtn');
-            btn.innerText = "Analyzing...";
+            btn.innerText = "Analyzing Market...";
             btn.disabled = true;
 
             try {
@@ -207,9 +226,37 @@
                 updatePrice('balanced');
                 document.getElementById('resultsArea').scrollIntoView({ behavior: 'smooth' });
 
-            } catch (err) { alert("Search failed."); }
+            } catch (err) { alert("Market data unreachable."); }
             finally { btn.innerText = "What should I do?"; btn.disabled = false; }
         };
+
+        // Scanner Reactivation
+        document.getElementById('scanBtn').onclick = async () => {
+            document.getElementById('scannerModal').classList.remove('hidden');
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            
+            try {
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    { fps: 15, qrbox: { width: 250, height: 150 } }, 
+                    (text) => {
+                        document.getElementById('query').value = text;
+                        stopScanner();
+                        document.getElementById('analyzeBtn').click();
+                    }
+                );
+            } catch (err) {
+                alert("Camera error. Please enable permissions.");
+                document.getElementById('scannerModal').classList.add('hidden');
+            }
+        };
+
+        async function stopScanner() {
+            if (html5QrCode && html5QrCode.isScanning) await html5QrCode.stop();
+            document.getElementById('scannerModal').classList.add('hidden');
+        }
+        document.getElementById('closeScanner').onclick = stopScanner;
+        document.getElementById('imageMode').onclick = () => alert("Image Photo Search is currently in Private Beta.");
     </script>
 </body>
 </html>
