@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>ResellSquare Decision Engine</title>
+    <title>ResellSquare | Know the price. Choose the platform. Sell.</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://resellsquare.com/logo192.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -18,130 +21,141 @@
             background-attachment: fixed;
             min-height: 100vh;
         }
-        .glass-nav { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        #reader { width: 100% !important; max-width: 400px; height: 300px; background-color: #000; border-radius: 1rem; overflow: hidden; }
-        #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; }
-        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .glass-nav { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .hero-gradient { background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent); }
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="text-slate-50 antialiased">
 
     <nav class="glass-nav sticky top-0 z-50">
-        <div class="max-w-3xl mx-auto px-4 h-16 flex justify-between items-center">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <div class="bg-green-500 w-8 h-8 rounded-lg flex items-center justify-center font-black text-white shadow-lg">R</div>
                 <span class="text-xl font-bold tracking-tight">ResellSquare</span>
             </div>
-            <span class="text-[10px] font-bold px-3 py-1 bg-white/10 rounded-full border border-white/20 uppercase tracking-wider">Beta</span>
+            <button id="joinWaitlistNav" class="text-xs font-bold px-4 py-2 bg-white/10 rounded-full border border-white/20 uppercase hover:bg-white/20 transition-all">Join Beta</button>
         </div>
     </nav>
 
-    <main class="max-w-3xl mx-auto px-4 py-10">
-        <div class="text-center mb-10 fade-in">
-            <h1 class="text-4xl font-extrabold text-white mb-3 tracking-tight">Should I buy this?</h1>
-            <p class="text-blue-100 opacity-90">Instant profit check using real eBay sold data.</p>
-        </div>
-
-        <div class="glass-panel rounded-2xl p-6 mb-8 shadow-xl">
-            <form id="searchForm" class="space-y-6">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Product / UPC</label>
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        
+        <section class="text-center mb-16 fade-in">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+                Scan anything. Get its resale value, best marketplace, and listing price in seconds.
+            </h1>
+            <p class="text-blue-100 text-lg md:text-xl max-w-2xl mx-auto opacity-90 leading-relaxed">
+                ResellSquare uses real sold-market data to estimate value, recommend where to sell, and suggest a price that moves.
+            </p>
+            
+            <div class="glass-panel rounded-2xl p-6 mt-10 max-w-xl mx-auto shadow-2xl">
+                <form id="searchForm" class="space-y-4">
                     <div class="relative flex items-center">
-                        <input type="text" id="query" class="block w-full pl-4 pr-14 py-4 bg-slate-900/50 border border-slate-700 rounded-xl text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all" placeholder="Scan or type..." required>
+                        <input type="text" id="query" class="block w-full pl-4 pr-14 py-4 bg-slate-900/50 border border-slate-700 rounded-xl text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all" placeholder="Enter product or scan barcode..." required>
                         <button type="button" id="scanBtn" class="absolute right-2 p-2.5 text-slate-400 hover:text-white bg-slate-800 rounded-lg border border-slate-700">
                             <i class="fa-solid fa-barcode text-xl"></i>
                         </button>
                     </div>
-                </div>
+                    <button type="submit" id="analyzeBtn" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-extrabold text-lg rounded-xl shadow-lg hover:shadow-green-500/40 transition-all active:scale-[0.98]">
+                        Check Resale Value
+                    </button>
+                </form>
+            </div>
+        </section>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Your Cost</label>
-                        <input type="number" step="0.01" id="cost_price" class="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white outline-none focus:ring-2 focus:ring-purple-500" placeholder="0.00">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Shipping</label>
-                        <input type="number" step="0.01" id="shipping_cost" class="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white outline-none focus:ring-2 focus:ring-purple-500" value="0">
-                    </div>
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20 fade-in" style="animation-delay: 0.2s">
+            <div class="glass-panel p-8 rounded-2xl text-center">
+                <div class="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-purple-500/30">
+                    <i class="fa-solid fa-camera text-purple-400 text-xl"></i>
                 </div>
-
-                <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700">
-                    <label class="flex-1 text-center cursor-pointer">
-                        <input type="radio" name="condition" value="all" class="peer sr-only">
-                        <span class="block py-2 text-sm font-bold text-slate-400 rounded-lg peer-checked:bg-slate-700 peer-checked:text-white transition-all">All</span>
-                    </label>
-                    <label class="flex-1 text-center cursor-pointer">
-                        <input type="radio" name="condition" value="new" class="peer sr-only">
-                        <span class="block py-2 text-sm font-bold text-slate-400 rounded-lg peer-checked:bg-slate-700 peer-checked:text-white transition-all">New</span>
-                    </label>
-                    <label class="flex-1 text-center cursor-pointer">
-                        <input type="radio" name="condition" value="used" class="peer sr-only" checked>
-                        <span class="block py-2 text-sm font-bold text-slate-400 rounded-lg peer-checked:bg-slate-700 peer-checked:text-white transition-all">Used</span>
-                    </label>
+                <h3 class="font-bold text-lg mb-2">1. Scan</h3>
+                <p class="text-sm text-blue-100/70">Instantly identify any item using your camera or UPC.</p>
+            </div>
+            <div class="glass-panel p-8 rounded-2xl text-center">
+                <div class="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/30">
+                    <i class="fa-solid fa-chart-line text-blue-400 text-xl"></i>
                 </div>
-
-                <button type="submit" id="analyzeBtn" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-extrabold text-lg rounded-xl shadow-lg hover:shadow-green-500/40 transition-all active:scale-[0.98]">
-                    Analyze Profit
-                </button>
-            </form>
-        </div>
+                <h3 class="font-bold text-lg mb-2">2. Analyze</h3>
+                <p class="text-sm text-blue-100/70">Our engine aggregates real-time sold data across marketplaces.</p>
+            </div>
+            <div class="glass-panel p-8 rounded-2xl text-center">
+                <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/30">
+                    <i class="fa-solid fa-gavel text-green-400 text-xl"></i>
+                </div>
+                <h3 class="font-bold text-lg mb-2">3. Decide</h3>
+                <p class="text-sm text-blue-100/70">Get a suggested list price and the best platform to sell on.</p>
+            </div>
+        </section>
 
         <div id="loading" class="hidden text-center py-12">
             <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-700 border-t-white mx-auto"></div>
-            <p class="mt-4 font-semibold tracking-wide">Scanning live market data...</p>
+            <p class="mt-4 font-semibold tracking-wide">Gathering market intelligence...</p>
         </div>
 
         <div id="resultsArea" class="hidden space-y-6 fade-in">
-            <div id="verdictCard" class="bg-white text-slate-900 rounded-2xl shadow-2xl p-8 text-center border-b-8">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Recommendation</p>
-                <h1 id="verdictTitle" class="text-6xl font-black mb-4">--</h1>
-                <p id="verdictReason" class="text-lg font-medium text-slate-600 mb-6">--</p>
-                <span id="confidenceBadge" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-100 border uppercase tracking-wide">-- Confidence</span>
-            </div>
-
-            <div id="feedbackSection" class="flex flex-col items-center py-2">
-                <p class="text-xs font-bold text-blue-100/60 uppercase tracking-widest mb-3">Was this result accurate?</p>
-                <div class="flex gap-4">
-                    <button onclick="sendFeedback('accurate')" class="px-6 py-2 bg-white/10 hover:bg-green-500/20 border border-white/20 rounded-xl text-sm transition-all">👍 Yes</button>
-                    <button onclick="sendFeedback('inaccurate')" class="px-6 py-2 bg-white/10 hover:bg-red-500/20 border border-white/20 rounded-xl text-sm transition-all">👎 No</button>
+            <div id="verdictCard" class="bg-white text-slate-900 rounded-3xl shadow-2xl p-10 text-center border-b-[12px]">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Market Verdict</p>
+                <h2 id="verdictTitle" class="text-6xl font-black mb-4">--</h2>
+                <div class="flex flex-wrap justify-center gap-2 mb-6" id="verdictBullets">
+                    <span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold text-slate-600 uppercase">Value Estimate</span>
+                    <span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold text-slate-600 uppercase">Platform Fit</span>
+                    <span class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold text-slate-600 uppercase">Price Suggestion</span>
                 </div>
+                <p id="verdictReason" class="text-lg font-medium text-slate-600 max-w-md mx-auto leading-relaxed">--</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="glass-panel rounded-2xl p-6 relative">
-                    <div class="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Live</div>
+                <div class="glass-panel rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Top Recommendation</span>
+                        <span class="bg-blue-600 text-[10px] font-bold px-2 py-1 rounded">ESTIMATE</span>
+                    </div>
                     <div class="flex items-center mb-6">
                         <i class="fa-brands fa-ebay text-3xl mr-3 text-white"></i>
-                        <span class="font-bold text-lg">eBay Flip</span>
+                        <div>
+                            <span class="block font-bold text-lg">eBay Marketplace</span>
+                            <span class="text-xs text-slate-400">High Demand Zone</span>
+                        </div>
                     </div>
-                    <div class="space-y-3 mb-6">
-                        <div class="flex justify-between"><span>Avg Price</span> <span id="ebayPrice" class="font-mono font-bold text-white">--</span></div>
-                    </div>
-                    <div class="pt-4 border-t border-slate-700 flex justify-between items-center">
-                        <span class="font-bold">Net Profit</span>
-                        <div class="text-right">
-                            <span id="ebayProfit" class="block text-3xl font-black text-green-400">--</span>
-                            <span id="ebayRoi" class="text-xs font-mono text-slate-400">-- ROI</span>
+                    <div class="space-y-4">
+                        <div class="flex justify-between border-b border-white/10 pb-2">
+                            <span class="text-slate-400 text-sm">Suggested List Price</span>
+                            <span id="ebayPrice" class="font-mono font-bold text-white text-lg">--</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400 text-sm">Net Profit (Est.)</span>
+                            <span id="ebayProfit" class="font-mono font-bold text-green-400 text-lg">--</span>
                         </div>
                     </div>
                 </div>
-                <div class="glass-panel rounded-2xl p-6 opacity-70 border-dashed border-slate-600">
-                    <span class="font-bold text-lg text-slate-400">Amazon FBA</span>
-                    <p class="text-sm text-slate-400 mt-2">Analyze FBA fees and sales rank automatically.</p>
-                    <button id="joinWaitlistBtn" class="mt-4 w-full py-2 border border-slate-600 rounded-lg text-xs font-bold uppercase hover:bg-slate-700 transition-all">Join Waitlist</button>
+
+                <div class="glass-panel rounded-2xl p-6 flex flex-col justify-center items-center text-center border-dashed border-slate-600">
+                    <h4 class="font-bold text-white mb-2">Amazon FBA Comparison</h4>
+                    <p class="text-xs text-slate-400 px-4">Beta members get access to automated FBA fee calculations and gating checks soon.</p>
+                    <button id="joinWaitlistBtn" class="mt-4 px-6 py-2 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white/20 transition-all">Join Beta Waitlist</button>
                 </div>
             </div>
+            
+            <p class="text-[10px] text-center text-blue-100/40 uppercase tracking-widest pt-4">Data based on real sold listings. Market intelligence provided for estimation only.</p>
         </div>
     </main>
+
+    <footer class="py-12 text-center fade-in">
+        <p class="text-sm font-medium text-white/80 italic">Know the price. Choose the platform. Sell.</p>
+        <div class="mt-6 flex justify-center gap-6 text-white/40">
+            <a href="https://x.com/resellsquare" class="hover:text-white transition-colors"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="https://instagram.com/resellsquareapp" class="hover:text-white transition-colors"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+    </footer>
 
     <div id="scannerModal" class="hidden fixed inset-0 bg-slate-900/95 z-[60] flex flex-col items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white p-5 rounded-3xl w-full max-w-md relative shadow-2xl">
             <button id="closeScanner" class="absolute -top-12 right-0 text-white p-2 text-3xl">&times;</button>
-            <h3 class="text-slate-900 text-xl font-bold mb-4 text-center">Scan Barcode</h3>
+            <h3 class="text-slate-900 text-xl font-bold mb-4 text-center">Identify Product</h3>
             <div id="reader" class="mx-auto"></div>
-            <div id="scanStatus" class="text-center mt-4 text-sm text-slate-500 font-medium">Initializing...</div>
+            <div id="scanStatus" class="text-center mt-4 text-sm text-slate-500 font-medium">Point camera at barcode</div>
         </div>
     </div>
 
@@ -160,6 +174,7 @@
         const waitlistModal = document.getElementById('waitlistModal');
         const closeWaitlist = document.getElementById('closeWaitlist');
         const joinWaitlistBtn = document.getElementById('joinWaitlistBtn');
+        const joinWaitlistNav = document.getElementById('joinWaitlistNav');
         let html5QrCode;
 
         // Scanner
@@ -171,7 +186,6 @@
                     document.getElementById('query').value = text;
                     stopScanner();
                 });
-                document.getElementById('scanStatus').innerText = "Camera Active";
             } catch (err) { document.getElementById('scanStatus').innerText = "Camera Error"; }
         });
 
@@ -182,16 +196,12 @@
         closeScanner.addEventListener('click', stopScanner);
 
         // Waitlist
-        joinWaitlistBtn.addEventListener('click', () => waitlistModal.classList.remove('hidden'));
-        closeWaitlist.addEventListener('click', () => waitlistModal.classList.add('hidden'));
+        const toggleWaitlist = () => waitlistModal.classList.toggle('hidden');
+        joinWaitlistBtn.addEventListener('click', toggleWaitlist);
+        joinWaitlistNav.addEventListener('click', toggleWaitlist);
+        closeWaitlist.addEventListener('click', toggleWaitlist);
 
-        // Feedback
-        function sendFeedback(type) {
-            console.log("Feedback:", type);
-            document.getElementById('feedbackSection').innerHTML = `<p class="text-xs font-bold text-green-300 uppercase tracking-widest">Thanks for the feedback!</p>`;
-        }
-
-        // Search
+        // Search Logic
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('analyzeBtn');
@@ -199,7 +209,7 @@
             const results = document.getElementById('resultsArea');
             
             btn.disabled = true;
-            btn.innerText = "Analyzing...";
+            btn.innerText = "Analyzing Market...";
             loading.classList.remove('hidden');
             results.classList.add('hidden');
 
@@ -209,9 +219,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         query: document.getElementById('query').value,
-                        cost_price: parseFloat(document.getElementById('cost_price').value) || 0,
-                        shipping_cost: parseFloat(document.getElementById('shipping_cost').value) || 0,
-                        condition: document.querySelector('input[name="condition"]:checked').value
+                        condition: 'all' // Defaulting for mass market pivot
                     })
                 });
                 const data = await response.json();
@@ -220,16 +228,23 @@
                 document.getElementById('verdictReason').innerText = data.confidence_reason;
                 document.getElementById('ebayPrice').innerText = `$${data.metrics.median.toFixed(2)}`;
                 document.getElementById('ebayProfit').innerText = `$${data.financials.profit.toFixed(2)}`;
-                document.getElementById('ebayRoi').innerText = `${data.financials.roi}%`;
                 
                 const card = document.getElementById('verdictCard');
                 card.style.borderColor = data.verdict === 'BUY' ? '#10B981' : (data.verdict === 'SKIP' ? '#EF4444' : '#F59E0B');
                 
                 loading.classList.add('hidden');
                 results.classList.remove('hidden');
+                results.scrollIntoView({ behavior: 'smooth' });
             } catch (err) { alert("Analysis failed."); }
-            finally { btn.disabled = false; btn.innerText = "Analyze Profit"; }
+            finally { btn.disabled = false; btn.innerText = "Check Resale Value"; }
         });
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+            });
+        }
     </script>
 </body>
 </html>
