@@ -50,7 +50,7 @@ class EbayDataSource:
         params = {
             'q': query,
             'limit': 50,
-            'sort': '-price',
+            # 'sort': '-price', # Removed to use default "Relevance" 
             'filter': 'buyingOptions:{FIXED_PRICE|BEST_OFFER},deliveryCountry:US,price:[5..5000],priceCurrency:USD'
         }
         
