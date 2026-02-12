@@ -77,14 +77,14 @@
                         <i class="fa-solid fa-chart-line text-blue-400"></i>
                     </div>
                     <p class="text-[10px] font-black uppercase text-blue-200 tracking-widest">Real Solds</p>
-                    <p class="text-[11px] text-blue-100/60 mt-2">Data based on 90-day verified sales, not asking prices.</p>
+                    <p class="text-[11px] text-blue-100/60 mt-2">Data based on 90-day verified sales.</p>
                 </div>
                 <div class="glass-card rounded-3xl p-6 text-center">
                     <div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-emerald-500/30">
                         <i class="fa-solid fa-calculator text-emerald-400"></i>
                     </div>
                     <p class="text-[10px] font-black uppercase text-emerald-200 tracking-widest">Net Profit</p>
-                    <p class="text-[11px] text-blue-100/60 mt-2">Fees and shipping auto-calculated for total accuracy.</p>
+                    <p class="text-[11px] text-blue-100/60 mt-2">Fees & shipping auto-calculated.</p>
                 </div>
             </div>
 
@@ -115,7 +115,6 @@
                                 <div id="velocityBar" class="h-full bg-blue-500" style="width: 0%"></div>
                             </div>
                         </div>
-                        <p class="text-[10px] text-blue-100/40 mt-4 italic">Est. time to sell</p>
                     </div>
                     <div class="glass-card rounded-[2rem] p-6">
                         <p class="text-[9px] font-black text-blue-200 uppercase tracking-widest mb-4">Est. Net Profit</p>
@@ -136,7 +135,7 @@
                 <div class="glass-card rounded-[2rem] p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h4 class="text-[10px] font-black text-blue-200 uppercase tracking-widest">Evidence Feed</h4>
-                        <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-blue-100/40 font-bold uppercase">Live Comps</span>
+                        <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-blue-100/40 font-bold uppercase">Live Sold</span>
                     </div>
                     <div id="compsList" class="space-y-3"></div>
                 </div>
@@ -151,7 +150,7 @@
                     <div class="scanner-overlay overflow-hidden shadow-2xl"><div id="reader"></div></div>
                     <div class="grid grid-cols-2 gap-4">
                         <button id="barcodeMode" class="py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-400">Barcode</button>
-                        <button id="imageMode" class="py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 opacity-40">Photo (BETA)</button>
+                        <button id="imageMode" class="py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10">Photo Search</button>
                     </div>
                 </div>
             </div>
@@ -172,14 +171,12 @@
         let currentPrices = {};
         let html5QrCode;
 
-        // Pricing logic
         function updatePrice(tier) {
             document.getElementById('displayPrice').innerText = `$${currentPrices[tier].toFixed(2)}`;
             document.querySelectorAll('.price-chip').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`btn-${tier}`).classList.add('active');
         }
 
-        // Search logic
         document.getElementById('searchForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('analyzeBtn');
@@ -230,7 +227,7 @@
             finally { btn.innerText = "What should I do?"; btn.disabled = false; }
         };
 
-        // Scanner Reactivation
+        // Vision Scanner Controls
         document.getElementById('scanBtn').onclick = async () => {
             document.getElementById('scannerModal').classList.remove('hidden');
             if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
@@ -256,7 +253,45 @@
             document.getElementById('scannerModal').classList.add('hidden');
         }
         document.getElementById('closeScanner').onclick = stopScanner;
-        document.getElementById('imageMode').onclick = () => alert("Image Photo Search is currently in Private Beta.");
+
+        // GPT-4o Vision Identification
+        document.getElementById('imageMode').onclick = async () => {
+            const btn = document.getElementById('imageMode');
+            if (!html5QrCode || !html5QrCode.isScanning) { alert("Open camera first."); return; }
+
+            const originalText = btn.innerText;
+            btn.innerText = "IDENTIFYING...";
+            btn.disabled = true;
+
+            try {
+                const video = document.querySelector('#reader video');
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const base64Image = canvas.toDataURL('image/jpeg', 0.7);
+
+                const response = await fetch('/api/identify-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64Image })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('query').value = result.identified_product;
+                    stopScanner();
+                    document.getElementById('analyzeBtn').click();
+                } else {
+                    alert("Identification failed. Try a closer shot.");
+                }
+            } catch (err) {
+                alert("Vision error.");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        };
     </script>
 </body>
 </html>
