@@ -23,6 +23,10 @@ else:
 @app.route('/')
 def index():
     return render_template('index.html')
+    
+@app.route('/thank-you')
+def thank_you():
+    return render_template('thank_you.html')    
 
 @app.route('/api/search', methods=['POST'])
 def search():
