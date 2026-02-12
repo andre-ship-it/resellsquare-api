@@ -1,694 +1,218 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>ResellSquare — Should I Buy This?</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-<style>
-  :root {
-    --bg: #0C0C0E;
-    --surface: #161619;
-    --surface-2: #1E1E22;
-    --border: #2A2A30;
-    --text: #E8E8EC;
-    --text-muted: #8A8A95;
-    --accent: #3BF584;
-    --accent-dim: rgba(59, 245, 132, 0.12);
-    --danger: #FF4D6A;
-    --danger-dim: rgba(255, 77, 106, 0.12);
-    --warn: #FFB84D;
-    --warn-dim: rgba(255, 184, 77, 0.12);
-    --radius: 14px;
-    --radius-sm: 10px;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100dvh;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-
-  .header {
-    padding: 20px 20px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .logo { display: flex; align-items: center; gap: 10px; }
-  .logo-icon {
-    width: 32px; height: 32px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 16px; color: var(--bg);
-  }
-  .logo-text { font-weight: 700; font-size: 18px; letter-spacing: -0.3px; }
-  .badge {
-    font-family: 'DM Mono', monospace; font-size: 11px;
-    padding: 4px 10px; background: var(--surface-2);
-    border: 1px solid var(--border); border-radius: 20px; color: var(--text-muted);
-  }
-
-  .container { max-width: 480px; margin: 0 auto; padding: 16px 20px 100px; }
-
-  .tagline { text-align: center; padding: 28px 0 24px; }
-  .tagline h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 8px; }
-  .tagline h1 span { color: var(--accent); }
-  .tagline p { font-size: 14px; color: var(--text-muted); font-weight: 500; }
-
-  .search-section {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
-  }
-
-  .input-group { margin-bottom: 12px; }
-  .input-group:last-child { margin-bottom: 0; }
-  .input-label {
-    font-family: 'DM Mono', monospace; font-size: 11px;
-    color: var(--text-muted); text-transform: uppercase;
-    letter-spacing: 0.8px; margin-bottom: 6px; display: block;
-  }
-
-  .input-field {
-    width: 100%; background: var(--surface-2);
-    border: 1px solid var(--border); border-radius: var(--radius-sm);
-    padding: 14px 16px; font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 16px; font-weight: 600; color: var(--text); outline: none;
-    transition: border-color 0.2s;
-  }
-  .input-field::placeholder { color: #4A4A55; font-weight: 500; }
-  .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-
-  /* Product input with scan button */
-  .product-input-wrap { position: relative; }
-  .product-input-wrap .input-field { padding-right: 56px; }
-
-  .scan-btn {
-    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-    width: 44px; height: 44px;
-    background: var(--accent); border: none; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: all 0.15s;
-  }
-  .scan-btn:active { transform: translateY(-50%) scale(0.93); }
-  .scan-btn svg { width: 22px; height: 22px; color: var(--bg); }
-
-  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .cost-input { position: relative; }
-  .cost-input .dollar-sign {
-    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-    color: var(--text-muted); font-size: 16px; font-weight: 600; pointer-events: none;
-  }
-  .cost-input .input-field { padding-left: 30px; }
-
-  .condition-row { display: flex; gap: 6px; margin-top: 12px; }
-  .condition-btn {
-    flex: 1; padding: 10px 8px;
-    background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); color: var(--text-muted);
-    font-family: 'DM Mono', monospace; font-size: 12px;
-    cursor: pointer; transition: all 0.2s; text-align: center;
-  }
-  .condition-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
-
-  .analyze-btn {
-    width: 100%; padding: 16px; background: var(--accent);
-    color: var(--bg); border: none; border-radius: var(--radius);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 16px; font-weight: 800; letter-spacing: -0.2px;
-    cursor: pointer; transition: all 0.15s; margin-bottom: 12px;
-  }
-  .analyze-btn:active { transform: scale(0.98); }
-  .analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-  .analyze-btn.loading { position: relative; color: transparent; }
-  .analyze-btn.loading::after {
-    content: ''; position: absolute; width: 22px; height: 22px;
-    border: 3px solid rgba(12,12,14,0.3); border-top-color: var(--bg);
-    border-radius: 50%; left: 50%; top: 50%;
-    transform: translate(-50%,-50%); animation: spin 0.6s linear infinite;
-  }
-  @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
-
-  /* === SCANNER OVERLAY === */
-  .scanner-overlay {
-    display: none; position: fixed; inset: 0; z-index: 1000;
-    background: var(--bg); flex-direction: column;
-  }
-  .scanner-overlay.active { display: flex; }
-
-  .scanner-header {
-    padding: 16px 20px; display: flex;
-    align-items: center; justify-content: space-between;
-    background: rgba(12,12,14,0.95); z-index: 10;
-  }
-  .scanner-title { font-weight: 700; font-size: 16px; }
-  .scanner-close {
-    width: 36px; height: 36px; background: var(--surface-2);
-    border: 1px solid var(--border); border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--text);
-  }
-  .scanner-close svg { width: 18px; height: 18px; }
-
-  .scanner-viewport {
-    flex: 1; position: relative; overflow: hidden; background: #000;
-  }
-  .scanner-viewport video {
-    width: 100%; height: 100%; object-fit: cover;
-  }
-
-  /* Scan target reticle */
-  .scan-reticle {
-    position: absolute; left: 50%; top: 50%;
-    transform: translate(-50%, -50%);
-    width: 260px; height: 160px; pointer-events: none;
-  }
-  .scan-reticle::before {
-    content: ''; position: absolute; inset: 0;
-    border: 2px solid rgba(59, 245, 132, 0.6); border-radius: 12px;
-  }
-  .scan-reticle .scan-line {
-    position: absolute; left: 8px; right: 8px; top: 50%;
-    height: 2px; background: var(--accent);
-    animation: scanPulse 1.5s ease-in-out infinite;
-    box-shadow: 0 0 12px var(--accent);
-  }
-  @keyframes scanPulse {
-    0%, 100% { opacity: 0.4; transform: translateY(-30px); }
-    50% { opacity: 1; transform: translateY(30px); }
-  }
-
-  .scanner-status {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 20px; text-align: center;
-    background: linear-gradient(transparent, rgba(12,12,14,0.95));
-  }
-  .scanner-status-text {
-    font-family: 'DM Mono', monospace; font-size: 13px;
-    color: var(--text-muted);
-  }
-  .scanner-status-text.found { color: var(--accent); font-weight: 500; }
-
-  /* Quagga draws into a canvas inside this div */
-  #quagga-scanner {
-    position: absolute; inset: 0;
-  }
-  #quagga-scanner video,
-  #quagga-scanner canvas {
-    position: absolute; inset: 0;
-    width: 100% !important; height: 100% !important;
-    object-fit: cover;
-  }
-  #quagga-scanner canvas.drawingBuffer { display: none; }
-
-  /* === VERDICT, BREAKDOWN, MARKET DATA (same as before) === */
-  .verdict-card {
-    border-radius: var(--radius); padding: 20px; margin-bottom: 12px;
-    text-align: center; animation: slideUp 0.3s ease-out; display: none;
-  }
-  .verdict-card.visible { display: block; }
-  .verdict-card.go { background: var(--accent-dim); border: 1px solid rgba(59,245,132,0.25); }
-  .verdict-card.skip { background: var(--danger-dim); border: 1px solid rgba(255,77,106,0.25); }
-  .verdict-card.caution { background: var(--warn-dim); border: 1px solid rgba(255,184,77,0.25); }
-  .verdict-label { font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
-  .verdict-card.go .verdict-label { color: var(--accent); }
-  .verdict-card.skip .verdict-label { color: var(--danger); }
-  .verdict-card.caution .verdict-label { color: var(--warn); }
-  .verdict-text { font-size: 36px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 6px; }
-  .verdict-card.go .verdict-text { color: var(--accent); }
-  .verdict-card.skip .verdict-text { color: var(--danger); }
-  .verdict-card.caution .verdict-text { color: var(--warn); }
-  .verdict-sub { font-size: 14px; color: var(--text-muted); font-weight: 500; }
-  .verdict-sub strong { color: var(--text); }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-
-  .breakdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; display: none; }
-  .breakdown.visible { display: block; animation: slideUp 0.3s ease-out; }
-  .breakdown-title { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; }
-  .breakdown-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
-  .breakdown-row:last-child { border-bottom: none; }
-  .breakdown-row .label { font-size: 14px; color: var(--text-muted); font-weight: 500; }
-  .breakdown-row .value { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--text); }
-  .breakdown-row.highlight .label { color: var(--text); font-weight: 700; }
-  .breakdown-row.highlight .value { font-weight: 700; font-size: 16px; }
-  .breakdown-row.profit-positive .value { color: var(--accent); }
-  .breakdown-row.profit-negative .value { color: var(--danger); }
-
-  .market-data { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; display: none; }
-  .market-data.visible { display: block; animation: slideUp 0.35s ease-out; }
-  .market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .market-header .breakdown-title { margin-bottom: 0; }
-  .confidence-badge { font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 8px; border-radius: 6px; }
-  .confidence-high { background: var(--accent-dim); color: var(--accent); }
-  .confidence-medium { background: var(--warn-dim); color: var(--warn); }
-  .confidence-low { background: var(--danger-dim); color: var(--danger); }
-  .price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-  .price-stat { background: var(--surface-2); border-radius: var(--radius-sm); padding: 12px 10px; text-align: center; }
-  .price-stat .stat-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-  .price-stat .stat-value { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
-
-  .sales-list { max-height: 240px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .sale-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 12px; }
-  .sale-item:last-child { border-bottom: none; }
-  .sale-title { font-size: 13px; color: var(--text-muted); font-weight: 500; line-height: 1.3; flex: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .sale-price { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; }
-  .sale-condition { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 2px; }
-  .sample-note { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 8px; }
-
-  .error-msg { text-align: center; padding: 20px; color: var(--danger); font-size: 14px; font-weight: 600; display: none; }
-  .error-msg.visible { display: block; }
-
-  .footer { text-align: center; padding: 20px 0; border-top: 1px solid var(--border); margin-top: 8px; }
-  .footer p { font-family: 'DM Mono', monospace; font-size: 11px; color: #3A3A42; }
-
-  .sales-list::-webkit-scrollbar { width: 4px; }
-  .sales-list::-webkit-scrollbar-track { background: transparent; }
-  .sales-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-  @media (min-width: 600px) { .container { padding: 24px 32px 100px; } .tagline h1 { font-size: 32px; } }
-</style>
-</head>
-<body>
-
-<div class="container">
-  <div class="header">
-    <div class="logo"><div class="logo-icon">R</div><span class="logo-text">ResellSquare</span></div>
-    <span class="badge">Beta</span>
-  </div>
-
-  <div class="tagline">
-    <h1>Should I <span>buy</span> this?</h1>
-    <p>Scan a barcode or search by name. Instant profit verdict.</p>
-  </div>
-
-  <div class="search-section">
-    <div class="input-group">
-      <label class="input-label">Product</label>
-      <div class="product-input-wrap">
-        <input id="productInput" type="text" class="input-field" placeholder="e.g. AirPods Pro 2nd Gen" autocomplete="off" enterkeyhint="next">
-        <button class="scan-btn" onclick="openScanner()" title="Scan barcode">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 7V5a2 2 0 012-2h2"/>
-            <path d="M17 3h2a2 2 0 012 2v2"/>
-            <path d="M21 17v2a2 2 0 01-2 2h-2"/>
-            <path d="M7 21H5a2 2 0 01-2-2v-2"/>
-            <line x1="7" y1="12" x2="17" y2="12"/>
-            <line x1="7" y1="8" x2="13" y2="8"/>
-            <line x1="7" y1="16" x2="15" y2="16"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-    <div class="input-row">
-      <div class="input-group">
-        <label class="input-label">Your cost</label>
-        <div class="cost-input">
-          <span class="dollar-sign">$</span>
-          <input id="costInput" type="number" class="input-field" placeholder="0.00" inputmode="decimal" step="0.01" min="0" enterkeyhint="go">
+<div id="loading" class="hidden text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-200 border-t-blue-600"></div>
+            <p class="mt-2 text-slate-500 text-sm font-medium">Crunching sold comps...</p>
         </div>
-      </div>
-      <div class="input-group">
-        <label class="input-label">Shipping cost</label>
-        <div class="cost-input">
-          <span class="dollar-sign">$</span>
-          <input id="shippingInput" type="number" class="input-field" placeholder="0.00" inputmode="decimal" step="0.01" min="0" value="0" enterkeyhint="go">
-        </div>
-      </div>
-    </div>
-    <div class="condition-row">
-      <button class="condition-btn active" data-condition="all" onclick="setCondition(this)">All</button>
-      <button class="condition-btn" data-condition="new" onclick="setCondition(this)">New</button>
-      <button class="condition-btn" data-condition="used" onclick="setCondition(this)">Used</button>
-    </div>
-  </div>
 
-  <button id="analyzeBtn" class="analyze-btn" onclick="analyze()">Analyze Profit</button>
+        <div id="resultsArea" class="hidden space-y-6 fade-in">
+            
+            <div class="bg-white rounded-xl shadow-lg border-l-8 overflow-hidden" id="verdictCard">
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-bold text-slate-400 uppercase tracking-wide mb-1">Recommendation</p>
+                            <h1 id="verdictTitle" class="text-4xl font-extrabold tracking-tight mb-2">--</h1>
+                            <p id="verdictReason" class="text-slate-600 text-sm max-w-lg">--</p>
+                        </div>
+                        <div class="text-right">
+                            <span id="confidenceBadge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                -- Confidence
+                            </span>
+                            <p class="text-xs text-slate-400 mt-1" id="compCount">Based on -- sold</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  <div id="error" class="error-msg"></div>
-  <div id="verdict" class="verdict-card"></div>
-  <div id="breakdown" class="breakdown"><div class="breakdown-title">Profit Breakdown</div><div id="breakdownRows"></div></div>
-  <div id="marketData" class="market-data">
-    <div class="market-header"><div class="breakdown-title">Market Data</div><span id="confidenceBadge" class="confidence-badge"></span></div>
-    <div class="price-grid">
-      <div class="price-stat"><div class="stat-label">Avg</div><div id="avgPrice" class="stat-value">&mdash;</div></div>
-      <div class="price-stat"><div class="stat-label">Median</div><div id="medianPrice" class="stat-value">&mdash;</div></div>
-      <div class="price-stat"><div class="stat-label">Range</div><div id="priceRange" class="stat-value">&mdash;</div></div>
-    </div>
-    <div class="breakdown-title">Recent Sales</div>
-    <div id="salesList" class="sales-list"></div>
-    <div id="sampleNote" class="sample-note"></div>
-  </div>
-  <div class="footer"><p>eBay fees estimated at 13.25% &middot; final value + payment processing</p></div>
-</div>
+            <div id="warningSection" class="hidden bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-amber-700" id="warningText">
+                            Mixed variants detected. Please refine your search (add Model #) for better accuracy.
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-<!-- SCANNER OVERLAY -->
-<div id="scannerOverlay" class="scanner-overlay">
-  <div class="scanner-header">
-    <span class="scanner-title">Scan Barcode</span>
-    <button class="scanner-close" onclick="closeScanner()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div class="scanner-viewport">
-    <video id="scannerVideo" autoplay playsinline muted></video>
-    <div id="quagga-scanner"></div>
-    <div class="scan-reticle"><div class="scan-line"></div></div>
-    <div class="scanner-status">
-      <div id="scannerStatus" class="scanner-status-text">Point camera at a barcode</div>
-    </div>
-  </div>
-</div>
+            <h3 class="text-lg font-bold text-slate-800 mt-8 mb-2">Exit Strategy</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">PRIMARY</div>
+                    <div class="flex items-center mb-4">
+                        <i class="fa-brands fa-ebay text-2xl text-slate-700 mr-2"></i>
+                        <span class="font-semibold text-slate-700">eBay Market</span>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-end border-b border-slate-100 pb-2">
+                            <span class="text-slate-500 text-sm">Median Sold</span>
+                            <span class="font-bold text-slate-800 text-lg" id="ebayPrice">--</span>
+                        </div>
+                        <div class="flex justify-between items-end text-sm">
+                            <span class="text-slate-500">Est. Fees (~13%)</span>
+                            <span class="text-red-500" id="ebayFees">--</span>
+                        </div>
+                        <div class="flex justify-between items-end text-sm">
+                            <span class="text-slate-500">Est. Shipping</span>
+                            <span class="text-red-500" id="ebayShipping">--</span>
+                        </div>
+                        <div class="pt-3 mt-2 border-t border-slate-100 flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+                            <span class="font-bold text-slate-700">Net Profit</span>
+                            <div class="text-right">
+                                <span class="block text-xl font-extrabold" id="ebayProfit">--</span>
+                                <span class="text-xs font-semibold" id="ebayRoi">-- ROI</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<script>
-// ============================================================
-// ResellSquare - Profit Decision Engine with Barcode Scanner
-// ============================================================
+                <div class="bg-slate-50 rounded-xl border border-slate-200 p-5 opacity-75 relative">
+                    <div class="absolute top-3 right-3">
+                        <span class="bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded">COMING SOON</span>
+                    </div>
+                    <div class="flex items-center mb-4">
+                        <i class="fa-brands fa-amazon text-2xl text-slate-400 mr-2"></i>
+                        <span class="font-semibold text-slate-500">Amazon FBA</span>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-4">
+                        Unlock FBA fee calculators, sales rank velocity, and gating checks.
+                    </p>
+                    <button class="w-full py-2 border border-slate-300 rounded text-sm text-slate-600 hover:bg-white transition-colors">
+                        Join Waitlist
+                    </button>
+                </div>
+            </div>
 
-var EBAY_FEE_RATE = 0.1325;
-var selectedCondition = 'all';
-var scannerActive = false;
-var useNativeDetector = false;
-var nativeDetector = null;
-var nativeScanInterval = null;
+            <div class="mt-8 pt-6 border-t border-slate-200">
+                <details class="group">
+                    <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-slate-500 hover:text-blue-600 text-sm">
+                        <span>Analysis Data & Debugging</span>
+                        <span class="transition group-open:rotate-180">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </span>
+                    </summary>
+                    <div class="text-slate-500 text-xs mt-3 group-open:animate-fadeIn space-y-1 font-mono bg-slate-100 p-4 rounded">
+                        <p>Raw Median: <span id="debugMedian">--</span></p>
+                        <p>Outliers Removed: <span id="debugOutliers">--</span></p>
+                        <p>Search Query: <span id="debugQuery">--</span></p>
+                        <p>Server Verdict: <span id="debugVerdict">--</span></p>
+                    </div>
+                </details>
+            </div>
 
-function setCondition(btn) {
-  document.querySelectorAll('.condition-btn').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
-  selectedCondition = btn.dataset.condition;
-}
+        </div> </main>
+        <script>
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UI State: Loading
+            const btn = document.getElementById('analyzeBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('resultsArea');
+            const warningSec = document.getElementById('warningSection');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Analyzing...';
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+            warningSec.classList.add('hidden');
 
-document.getElementById('productInput').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') document.getElementById('costInput').focus();
-});
-document.getElementById('costInput').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') analyze();
-});
-document.getElementById('shippingInput').addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') analyze();
-});
+            // Gather Data
+            const formData = {
+                query: document.getElementById('query').value,
+                cost_price: parseFloat(document.getElementById('cost_price').value) || 0,
+                shipping_cost: parseFloat(document.getElementById('shipping_cost').value) || 0,
+                condition: document.getElementById('condition').value
+            };
 
-// ============================================================
-// BARCODE SCANNER
-// ============================================================
+            try {
+                // Call API (Adjust URL if needed)
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
 
-function openScanner() {
-  var overlay = document.getElementById('scannerOverlay');
-  overlay.classList.add('active');
-  document.getElementById('scannerStatus').textContent = 'Starting camera...';
-  document.getElementById('scannerStatus').className = 'scanner-status-text';
-  scannerActive = true;
+                if (!response.ok) throw new Error("API Connection Failed");
+                
+                const data = await response.json();
+                
+                // --- RENDER LOGIC ---
 
-  // Try native BarcodeDetector first (Chrome Android)
-  if ('BarcodeDetector' in window) {
-    startNativeScanner();
-  } else {
-    startQuaggaScanner();
-  }
-}
+                // 1. Verdict Styling
+                const verdictCard = document.getElementById('verdictCard');
+                const verdictTitle = document.getElementById('verdictTitle');
+                
+                // Reset classes
+                verdictCard.className = "bg-white rounded-xl shadow-lg border-l-8 overflow-hidden mb-6"; 
+                
+                if (data.verdict === 'BUY') {
+                    verdictCard.classList.add('border-green-500');
+                    verdictTitle.className = "text-4xl font-extrabold tracking-tight mb-2 text-green-600";
+                } else if (data.verdict === 'SKIP') {
+                    verdictCard.classList.add('border-red-500');
+                    verdictTitle.className = "text-4xl font-extrabold tracking-tight mb-2 text-red-600";
+                } else {
+                    verdictCard.classList.add('border-yellow-500');
+                    verdictTitle.className = "text-4xl font-extrabold tracking-tight mb-2 text-yellow-600";
+                }
 
-function closeScanner() {
-  scannerActive = false;
-  var overlay = document.getElementById('scannerOverlay');
-  overlay.classList.remove('active');
+                verdictTitle.innerText = data.verdict || "UNKNOWN";
+                document.getElementById('verdictReason').innerText = data.confidence_reason || "No reason provided.";
 
-  // Stop native scanner
-  if (nativeScanInterval) {
-    clearInterval(nativeScanInterval);
-    nativeScanInterval = null;
-  }
-  var video = document.getElementById('scannerVideo');
-  if (video.srcObject) {
-    video.srcObject.getTracks().forEach(function(t) { t.stop(); });
-    video.srcObject = null;
-  }
+                // 2. Confidence & Warnings
+                const confBadge = document.getElementById('confidenceBadge');
+                confBadge.innerText = (data.confidence || 'Low') + " Confidence";
+                
+                // Color code confidence
+                if((data.confidence || '').toLowerCase() === 'high') {
+                    confBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800";
+                } else {
+                    confBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800";
+                }
 
-  // Stop Quagga
-  try { Quagga.stop(); } catch(e) {}
-}
+                document.getElementById('compCount').innerText = `Based on ${data.metrics?.volume || 0} sold comps`;
 
-// --- Native BarcodeDetector (Chrome/Android) ---
-function startNativeScanner() {
-  var video = document.getElementById('scannerVideo');
-  video.style.display = 'block';
-  document.getElementById('quagga-scanner').style.display = 'none';
+                if (data.variant_warning) {
+                    warningSec.classList.remove('hidden');
+                    document.getElementById('warningText').innerText = data.variant_warning_text || "Mixed variants detected.";
+                }
 
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-  }).then(function(stream) {
-    video.srcObject = stream;
-    video.play();
+                // 3. Financials (eBay)
+                const formatMoney = (num) => num ? '$' + parseFloat(num).toFixed(2) : '$0.00';
+                
+                document.getElementById('ebayPrice').innerText = formatMoney(data.metrics?.median);
+                document.getElementById('ebayFees').innerText = '-' + formatMoney(data.financials?.fees);
+                document.getElementById('ebayShipping').innerText = '-' + formatMoney(data.financials?.shipping);
+                
+                const profitEl = document.getElementById('ebayProfit');
+                const profitVal = parseFloat(data.financials?.profit || 0);
+                profitEl.innerText = formatMoney(profitVal);
+                profitEl.className = profitVal > 0 ? "block text-xl font-extrabold text-green-600" : "block text-xl font-extrabold text-red-600";
 
-    nativeDetector = new BarcodeDetector({
-      formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39']
-    });
+                document.getElementById('ebayRoi').innerText = (data.financials?.roi || 0) + '% ROI';
 
-    document.getElementById('scannerStatus').textContent = 'Point camera at a barcode';
+                // 4. Debug
+                document.getElementById('debugMedian').innerText = data.metrics?.median;
+                document.getElementById('debugVerdict').innerText = data.verdict;
+                document.getElementById('debugQuery').innerText = formData.query;
 
-    nativeScanInterval = setInterval(function() {
-      if (!scannerActive) return;
-      nativeDetector.detect(video).then(function(barcodes) {
-        if (barcodes.length > 0) {
-          handleBarcode(barcodes[0].rawValue);
-        }
-      }).catch(function() {});
-    }, 150);
+                // Reveal
+                loading.classList.add('hidden');
+                results.classList.remove('hidden');
 
-  }).catch(function(err) {
-    console.log('Native camera failed, trying Quagga:', err);
-    startQuaggaScanner();
-  });
-}
-
-// --- QuaggaJS Fallback (iOS/Safari/Firefox) ---
-function startQuaggaScanner() {
-  var video = document.getElementById('scannerVideo');
-  video.style.display = 'none';
-  document.getElementById('quagga-scanner').style.display = 'block';
-
-  Quagga.init({
-    inputStream: {
-      name: "Live",
-      type: "LiveStream",
-      target: document.getElementById('quagga-scanner'),
-      constraints: {
-        facingMode: "environment",
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
-      }
-    },
-    decoder: {
-      readers: [
-        "ean_reader",
-        "ean_8_reader",
-        "upc_reader",
-        "upc_e_reader",
-        "code_128_reader"
-      ]
-    },
-    locate: true,
-    frequency: 10
-  }, function(err) {
-    if (err) {
-      document.getElementById('scannerStatus').textContent = 'Camera access denied. Check permissions.';
-      console.error('Quagga init error:', err);
-      return;
-    }
-    document.getElementById('scannerStatus').textContent = 'Point camera at a barcode';
-    Quagga.start();
-  });
-
-  Quagga.onDetected(function(result) {
-    if (result && result.codeResult && result.codeResult.code) {
-      handleBarcode(result.codeResult.code);
-    }
-  });
-}
-
-// --- Handle detected barcode ---
-var lastBarcode = '';
-var lastBarcodeTime = 0;
-
-function handleBarcode(code) {
-  // Debounce: ignore same barcode within 3 seconds
-  var now = Date.now();
-  if (code === lastBarcode && now - lastBarcodeTime < 3000) return;
-  lastBarcode = code;
-  lastBarcodeTime = now;
-
-  // Vibrate if available
-  if (navigator.vibrate) navigator.vibrate(200);
-
-  var statusEl = document.getElementById('scannerStatus');
-  statusEl.textContent = 'Found: ' + code + ' — Looking up product...';
-  statusEl.className = 'scanner-status-text found';
-
-  // Look up UPC via backend
-  fetch('/api/upc-lookup', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ upc: code })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.success && data.title) {
-      // Auto-fill product name and close scanner
-      var productName = data.title;
-      // Trim to reasonable length for eBay search
-      if (productName.length > 80) {
-        productName = productName.substring(0, 80);
-      }
-      document.getElementById('productInput').value = productName;
-      closeScanner();
-      // Focus on cost input
-      document.getElementById('costInput').focus();
-    } else {
-      // Product not found in DB — use UPC as search term
-      statusEl.textContent = 'Product not found. Using UPC: ' + code;
-      setTimeout(function() {
-        document.getElementById('productInput').value = code;
-        closeScanner();
-        document.getElementById('costInput').focus();
-      }, 1200);
-    }
-  })
-  .catch(function() {
-    // Network error — use UPC directly
-    document.getElementById('productInput').value = code;
-    closeScanner();
-    document.getElementById('costInput').focus();
-  });
-}
-
-// ============================================================
-// PROFIT ANALYSIS (same logic as before)
-// ============================================================
-
-function analyze() {
-  var product = document.getElementById('productInput').value.trim();
-  var cost = parseFloat(document.getElementById('costInput').value) || 0;
-  var shipping = parseFloat(document.getElementById('shippingInput').value) || 0;
-  var btn = document.getElementById('analyzeBtn');
-
-  hideResults();
-  if (!product) { showError('Enter a product name or scan a barcode.'); return; }
-  if (cost <= 0) { showError('Enter your cost so we can calculate profit.'); return; }
-
-  btn.classList.add('loading');
-  btn.disabled = true;
-
-  fetch('/api/search', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ search_term: product, condition: selectedCondition })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (!data.success) { showError(data.error || 'No results found.'); return; }
-
-    var sellPrice = data.median_price;
-    var ebayFees = round(sellPrice * EBAY_FEE_RATE);
-    var totalCost = cost + shipping;
-    var netProfit = round(sellPrice - ebayFees - totalCost);
-    var profitMargin = round((netProfit / sellPrice) * 100);
-    var roi = round((netProfit / totalCost) * 100);
-
-    renderVerdict(netProfit, profitMargin, roi);
-    renderBreakdown(sellPrice, ebayFees, cost, shipping, totalCost, netProfit, profitMargin, roi);
-    renderMarketData(data);
-  })
-  .catch(function() { showError('Something went wrong. Try again.'); })
-  .finally(function() { btn.classList.remove('loading'); btn.disabled = false; });
-}
-
-function renderVerdict(profit, margin, roi) {
-  var el = document.getElementById('verdict');
-  var type, text, sub;
-
-  if (margin >= 20) {
-    type = 'go'; text = 'BUY IT';
-    sub = '<strong>$' + profit.toFixed(2) + '</strong> profit per unit &middot; ' + roi + '% ROI';
-  } else if (margin >= 5) {
-    type = 'caution'; text = 'THIN MARGIN';
-    sub = '<strong>$' + profit.toFixed(2) + '</strong> profit &middot; Only ' + margin + '% margin';
-  } else {
-    type = 'skip';
-    text = profit <= 0 ? 'SKIP IT' : 'NOT WORTH IT';
-    sub = profit <= 0
-      ? 'You\'d <strong>lose $' + Math.abs(profit).toFixed(2) + '</strong> per unit'
-      : 'Only <strong>$' + profit.toFixed(2) + '</strong> profit &middot; ' + margin + '% margin';
-  }
-
-  el.className = 'verdict-card visible ' + type;
-  el.innerHTML = '<div class="verdict-label">Verdict</div><div class="verdict-text">' + text + '</div><div class="verdict-sub">' + sub + '</div>';
-}
-
-function renderBreakdown(sell, fees, cost, shipping, totalCost, profit, margin, roi) {
-  var rows = document.getElementById('breakdownRows');
-  var pc = profit >= 0 ? 'profit-positive' : 'profit-negative';
-  var h = '';
-  h += '<div class="breakdown-row"><span class="label">Expected sale price (median)</span><span class="value">$' + sell.toFixed(2) + '</span></div>';
-  h += '<div class="breakdown-row"><span class="label">eBay fees (13.25%)</span><span class="value">-$' + fees.toFixed(2) + '</span></div>';
-  h += '<div class="breakdown-row"><span class="label">Your cost</span><span class="value">-$' + cost.toFixed(2) + '</span></div>';
-  if (shipping > 0) h += '<div class="breakdown-row"><span class="label">Shipping cost</span><span class="value">-$' + shipping.toFixed(2) + '</span></div>';
-  h += '<div class="breakdown-row highlight ' + pc + '"><span class="label">Net Profit</span><span class="value">' + (profit >= 0 ? '' : '-') + '$' + Math.abs(profit).toFixed(2) + '</span></div>';
-  h += '<div class="breakdown-row"><span class="label">Profit margin</span><span class="value">' + margin + '%</span></div>';
-  h += '<div class="breakdown-row"><span class="label">Return on investment</span><span class="value">' + roi + '%</span></div>';
-  rows.innerHTML = h;
-  document.getElementById('breakdown').classList.add('visible');
-}
-
-function renderMarketData(data) {
-  document.getElementById('avgPrice').textContent = '$' + data.avg_price.toFixed(0);
-  document.getElementById('medianPrice').textContent = '$' + data.median_price.toFixed(0);
-  document.getElementById('priceRange').textContent = '$' + data.min_price.toFixed(0) + '-' + data.max_price.toFixed(0);
-  var badge = document.getElementById('confidenceBadge');
-  var count = data.count;
-  var conf, cls;
-  if (count >= 20) { conf = 'High'; cls = 'confidence-high'; }
-  else if (count >= 10) { conf = 'Medium'; cls = 'confidence-medium'; }
-  else { conf = 'Low'; cls = 'confidence-low'; }
-  badge.textContent = conf + ' confidence';
-  badge.className = 'confidence-badge ' + cls;
-  var list = document.getElementById('salesList');
-  var sales = data.recent_sales || [];
-  list.innerHTML = sales.slice(0, 15).map(function(sale) {
-    return '<div class="sale-item"><div><div class="sale-title">' + escapeHtml(sale.title) + '</div>' +
-      (sale.condition ? '<div class="sale-condition">' + escapeHtml(sale.condition) + '</div>' : '') +
-      '</div><div class="sale-price">$' + sale.price.toFixed(2) + '</div></div>';
-  }).join('');
-  document.getElementById('sampleNote').textContent = 'Based on ' + count + ' sold listing' + (count !== 1 ? 's' : '');
-  document.getElementById('marketData').classList.add('visible');
-}
-
-function hideResults() {
-  document.getElementById('verdict').className = 'verdict-card';
-  document.getElementById('breakdown').className = 'breakdown';
-  document.getElementById('marketData').className = 'market-data';
-  document.getElementById('error').className = 'error-msg';
-}
-
-function showError(msg) {
-  var el = document.getElementById('error');
-  el.textContent = msg;
-  el.classList.add('visible');
-}
-
-function round(n) { return Math.round(n * 100) / 100; }
-
-function escapeHtml(str) {
-  var d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
-</script>
+            } catch (err) {
+                console.error(err);
+                alert("Error connecting to decision engine. Check console.");
+                loading.classList.add('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Run Decision Engine';
+            }
+        });
+    </script>
 </body>
 </html>
