@@ -1,5 +1,8 @@
 import os
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 class EbayDataSource:
     def __init__(self):
@@ -12,7 +15,6 @@ class EbayDataSource:
             "_nkw": query,
             "ebay_domain": "ebay.com",
             "api_key": self.api_key,
-            "show_only": "sold",  # THIS IS THE KEY PARAMETER TO BYPASS BLOCKS
             "LH_Sold": "1",
             "LH_Complete": "1"
         }
@@ -21,14 +23,18 @@ class EbayDataSource:
             response = requests.get(self.base_url, params=params)
             data = response.json()
             
-            # Check if SerpApi returned an error or empty results
+            # --- CRITICAL DEBUGGING LINE ---
             if "error" in data:
+                logger.error(f"SERPAPI ERROR: {data['error']}")
                 return {"success": False, "error": data["error"]}
-                
+            
             listings = data.get('ebay_results', [])
+            if not listings:
+                logger.warning("SERPAPI WARNING: No ebay_results found in response")
+                return {"success": False, "error": "No results found"}
+
             prices = []
             recent_sales = []
-
             for item in listings:
                 price_val = item.get('price', {}).get('extracted', 0)
                 if price_val > 0:
@@ -40,11 +46,8 @@ class EbayDataSource:
                         "link": item.get('link')
                     })
 
-            if not prices:
-                return {"success": False, "error": "No sold data found."}
-
             prices.sort()
-            median = prices[len(prices)//2]
+            median = prices[len(prices)//2] if prices else 0
 
             return {
                 "success": True,
@@ -52,4 +55,5 @@ class EbayDataSource:
                 "recent_sales": recent_sales
             }
         except Exception as e:
+            logger.error(f"FETCH EXCEPTION: {str(e)}")
             return {"success": False, "error": str(e)}
