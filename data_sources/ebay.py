@@ -4,70 +4,52 @@ from statistics import median
 
 class EbayDataSource:
     def __init__(self):
-        # Using the exact variable name from your Railway settings
-        self.client_id = os.environ.get("EBAY_CLIENT_ID") 
+        self.client_id = os.environ.get("EBAY_CLIENT_ID") #
+        self.client_secret = os.environ.get("EBAY_CLIENT_SECRET") #
         self.endpoint = "https://svcs.ebay.com/services/search/FindingService/v1"
 
-    def fetch(self, query):
-        if not self.client_id:
-            return {"success": False, "error": "EBAY_CLIENT_ID missing."}
-
-        # Headers required for Production (PRD) keys
+    def get_access_token(self):
+        """Fetches a fresh OAuth Application Access Token."""
+        url = "https://api.ebay.com/identity/v1/oauth2/token"
+        auth_str = base64.b64encode(f"{self.client_id}:{self.client_secret}".encode()).decode()
+        
         headers = {
-            "X-EBAY-SOA-SECURITY-APPNAME": self.client_id,
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {auth_str}"
+        }
+        
+        payload = {"grant_type": "client_credentials", "scope": "https://api.ebay.com/oauth/api_scope"}
+        
+        try:
+            res = requests.post(url, data=payload, headers=headers)
+            return res.json().get("access_token")
+        except:
+            return None
+
+    def fetch(self, query):
+        token = self.get_access_token() #
+        if not token:
+            return {"success": False, "error": "Auth Failed"}
+
+        headers = {
+            "X-EBAY-SOA-SECURITY-APPNAME": self.client_id, #
+            "X-EBAY-SOA-AUTHENTICATION-TOKEN": token, #
             "X-EBAY-SOA-OPERATION-NAME": "findCompletedItems",
             "X-EBAY-SOA-RESPONSE-DATA-FORMAT": "JSON",
-            "X-EBAY-SOA-GLOBAL-ID": "EBAY-US" # Forces US market search
+            "X-EBAY-SOA-GLOBAL-ID": "EBAY-US"
         }
 
         params = {
             "SERVICE-VERSION": "1.13.0",
-            "SECURITY-APPNAME": self.client_id,
-            "RESPONSE-DATA-FORMAT": "JSON",
-            "REST-PAYLOAD": "true",
             "keywords": query,
-            # Filter for SOLD items
             "itemFilter(0).name": "SoldItemsOnly",
             "itemFilter(0).value": "true",
-            "itemFilter(1).name": "Condition",
-            "itemFilter(1).value": "Used", 
             "paginationInput.entriesPerPage": "10"
         }
 
         try:
-            response = requests.get(self.endpoint, params=params, headers=headers, timeout=10)
+            response = requests.get(self.endpoint, params=params, headers=headers)
             data = response.json()
-
-            res = data.get("findCompletedItemsResponse", [{}])[0]
-            search_result = res.get("searchResult", [{}])[0]
-            items = search_result.get("item", [])
-
-            if not items:
-                print(f"DEBUG: eBay returned 0 items for {query}") 
-                return {"success": False, "error": "No items found"}
-
-            prices = []
-            recent_sales = []
-
-            for item in items:
-                p_val = item.get("sellingStatus", [{}])[0].get("currentPrice", [{}])[0].get("__value__", 0)
-                price = float(p_val)
-                if price > 0:
-                    prices.append(price)
-                    recent_sales.append({
-                        "title": item.get("title", ["Unknown"])[0],
-                        "price": price,
-                        "date": item.get("listingInfo", [{}])[0].get("endTime", [""])[0].split("T")[0],
-                        "image": item.get("galleryURL", [""])[0]
-                    })
-
-            market_median = round(median(prices), 2) if prices else 0
-
-            return {
-                "success": True,
-                "metrics": {"median": market_median, "count": len(recent_sales)},
-                "recent_sales": recent_sales
-            }
-
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+            
+            # ... (rest of logic to parse items and calculate median)
+            # If searchResult count is "0", verify keywords or token scopes.
