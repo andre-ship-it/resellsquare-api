@@ -4,19 +4,20 @@ from statistics import median
 
 class EbayDataSource:
     def __init__(self):
-        # Using the exact variable name from your Railway screenshot
-        self.client_id = os.environ.get("EBAY_CLIENT_ID")
+        # Using the exact variable name from your Railway settings
+        self.client_id = os.environ.get("EBAY_CLIENT_ID") #
         self.endpoint = "https://svcs.ebay.com/services/search/FindingService/v1"
 
     def fetch(self, query):
         if not self.client_id:
             return {"success": False, "error": "EBAY_CLIENT_ID missing."}
 
-        # Headers are often required for Production (PRD) keys to validate the request
+        # Headers required for Production (PRD) keys
         headers = {
             "X-EBAY-SOA-SECURITY-APPNAME": self.client_id,
             "X-EBAY-SOA-OPERATION-NAME": "findCompletedItems",
-            "X-EBAY-SOA-RESPONSE-DATA-FORMAT": "JSON"
+            "X-EBAY-SOA-RESPONSE-DATA-FORMAT": "JSON",
+            "X-EBAY-SOA-GLOBAL-ID": "EBAY-US" # Forces US market search
         }
 
         params = {
@@ -25,25 +26,24 @@ class EbayDataSource:
             "RESPONSE-DATA-FORMAT": "JSON",
             "REST-PAYLOAD": "true",
             "keywords": query,
+            # Filter for SOLD items
             "itemFilter(0).name": "SoldItemsOnly",
             "itemFilter(0).value": "true",
+            "itemFilter(1).name": "Condition",
+            "itemFilter(1).value": "Used", # Specificity helps PRD keys
             "paginationInput.entriesPerPage": "10"
         }
 
         try:
-            # Using both headers and params for maximum compatibility with PRD keys
             response = requests.get(self.endpoint, params=params, headers=headers, timeout=10)
             data = response.json()
 
-            # Navigate deep eBay JSON
             res = data.get("findCompletedItemsResponse", [{}])[0]
-            
-            # Check if API actually returned items
             search_result = res.get("searchResult", [{}])[0]
             items = search_result.get("item", [])
 
             if not items:
-                print(f"DEBUG: eBay returned 0 items for {query}")
+                print(f"DEBUG: eBay returned 0 items for {query}") #
                 return {"success": False, "error": "No items found"}
 
             prices = []
