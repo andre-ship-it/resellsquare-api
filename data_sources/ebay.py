@@ -5,7 +5,7 @@ from statistics import median
 class EbayDataSource:
     def __init__(self):
         # Using the exact variable name from your Railway settings
-        self.client_id = os.environ.get("EBAY_CLIENT_ID") #
+        self.client_id = os.environ.get("EBAY_CLIENT_ID") 
         self.endpoint = "https://svcs.ebay.com/services/search/FindingService/v1"
 
     def fetch(self, query):
@@ -30,7 +30,7 @@ class EbayDataSource:
             "itemFilter(0).name": "SoldItemsOnly",
             "itemFilter(0).value": "true",
             "itemFilter(1).name": "Condition",
-            "itemFilter(1).value": "Used", # Specificity helps PRD keys
+            "itemFilter(1).value": "Used", 
             "paginationInput.entriesPerPage": "10"
         }
 
@@ -43,7 +43,7 @@ class EbayDataSource:
             items = search_result.get("item", [])
 
             if not items:
-                print(f"DEBUG: eBay returned 0 items for {query}") #
+                print(f"DEBUG: eBay returned 0 items for {query}") 
                 return {"success": False, "error": "No items found"}
 
             prices = []
