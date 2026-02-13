@@ -5,7 +5,7 @@ from data_sources.ebay import EbayDataSource
 
 app = Flask(__name__)
 
-# Only initialize the eBay data source for now
+# Initialize only the eBay source to verify connection
 ebay = EbayDataSource()
 
 @app.route('/')
@@ -20,10 +20,8 @@ def search():
     if not query:
         return jsonify({"success": False, "error": "No query provided"}), 400
 
-    # Fetch data directly from eBay to verify the connection
+    # Fetch raw data to confirm Client ID and Secret are working
     market_data = ebay.fetch(query)
-    
-    # Return the raw eBay data to the dashboard for verification
     return jsonify(market_data)
 
 @app.route('/marketplace-delete', methods=['GET', 'POST'])
@@ -32,7 +30,6 @@ def marketplace_delete():
         challenge_code = request.args.get('challenge_code')
         verification_token = os.environ.get('EBAY_VERIFICATION_TOKEN')
         endpoint = os.environ.get('EBAY_ENDPOINT')
-
         if not challenge_code or not verification_token or not endpoint:
             return "Missing configuration", 400
 
@@ -40,7 +37,6 @@ def marketplace_delete():
         sha256.update(challenge_code.encode('utf-8'))
         sha256.update(verification_token.encode('utf-8'))
         sha256.update(endpoint.encode('utf-8'))
-        
         return jsonify({"challengeResponse": sha256.hexdigest()}), 200
     return "", 200
 
