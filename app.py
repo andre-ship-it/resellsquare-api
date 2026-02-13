@@ -2,7 +2,8 @@ import os
 import hashlib
 from flask import Flask, render_template, request, jsonify
 from data_sources.ebay import EbayDataSource
-from logic.analysis import ResellAnalyzer
+# Changed from logic.analysis to analysis to match your root directory
+from analysis import ResellAnalyzer 
 
 app = Flask(__name__)
 
