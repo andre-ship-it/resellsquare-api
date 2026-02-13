@@ -4,8 +4,6 @@ from data_sources.ebay import EbayDataSource
 from analysis import ResellAnalyzer
 
 app = Flask(__name__)
-
-# Initialize components
 ebay = EbayDataSource()
 analyzer = ResellAnalyzer()
 
@@ -20,16 +18,14 @@ def search():
     cost_price = float(data.get('cost_price', 0) or 0)
     shipping_cost = float(data.get('shipping_cost', 0) or 0)
 
-    if not query:
-        return jsonify({"success": False, "error": "No query"}), 400
-
-    # 1. Fetch data (Ensure your ebay.py is set up for SerpApi)
+    # 1. Fetch from SerpApi
     market_data = ebay.fetch(query)
     
     if not market_data.get('success'):
-        return jsonify(market_data), 200
+        return jsonify(market_data)
 
-    # 2. Run the decision logic
+    # 2. Run Decision Logic
+    # CRITICAL: We return the analysis result, not the raw market_data
     analysis_result = analyzer.analyze(
         market_data=market_data,
         cost_price=cost_price,
@@ -39,6 +35,5 @@ def search():
     return jsonify(analysis_result)
 
 if __name__ == '__main__':
-    # Railway environment uses the PORT variable
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
