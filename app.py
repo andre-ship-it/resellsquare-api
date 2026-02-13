@@ -1,86 +1,74 @@
 import os
-import requests
-from datetime import datetime
+import hashlib
 from flask import Flask, render_template, request, jsonify
-from cache import cache
-from analysis import analyze_market_data
+from data_sources.ebay import EbayDataSource
+from logic.analysis import ResellAnalyzer
 
 app = Flask(__name__)
 
-# Config
-USE_DEMO = os.environ.get("USE_DEMO", "false").lower() == "true"
-DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL')
-
-if USE_DEMO:
-    from data_sources.demo import DemoDataSource
-    data_source = DemoDataSource()
-else:
-    from data_sources.ebay import EbayDataSource
-    data_source = EbayDataSource()
-
-def send_discord_log(query, verdict, median, profit, roi, image_url=None):
-    if not DISCORD_WEBHOOK_URL: return
-    color = 65280 if verdict == "LIST IT" else 3447003 if verdict == "SELL LOCAL" else 16711680
-    payload = {
-        "embeds": [{
-            "title": f"🔍 New Search: {query}",
-            "color": color,
-            "fields": [
-                {"name": "Verdict", "value": f"**{verdict}**", "inline": True},
-                {"name": "Market Price", "value": f"${median}", "inline": True},
-                {"name": "Est. Profit", "value": f"${profit} ({roi}%)", "inline": False}
-            ],
-            "thumbnail": {"url": image_url} if image_url else None,
-            "footer": {"text": f"ResellSquare | {datetime.now().strftime('%H:%M:%S')}"}
-        }]
-    }
-    try: requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=5)
-    except: pass
+# Initialize our components
+ebay = EbayDataSource()
+analyzer = ResellAnalyzer()
 
 @app.route('/')
 def index():
+    """Main dashboard entry point."""
     return render_template('index.html')
 
 @app.route('/api/search', methods=['POST'])
 def search():
-    try:
-        data = request.get_json()
-        search_term = data.get('query', '').strip()
-        cost = float(data.get('cost_price', 0) or 0)
-        shipping_cost = float(data.get('shipping_cost', 0) or 0)
+    """Handles product search and financial analysis."""
+    data = request.json
+    query = data.get('query')
+    cost_price = float(data.get('cost_price', 0) or 0)
+    shipping_cost = float(data.get('shipping_cost', 0) or 0)
 
-        cache_key = f"market:{search_term.lower()}"
-        market_data = cache.get(cache_key)
-        if not market_data:
-            market_data = data_source.fetch(search_term)
-            if market_data.get('success'):
-                cache.set(cache_key, market_data)
+    if not query:
+        return jsonify({"success": False, "error": "No query provided"}), 400
 
-        analysis = analyze_market_data(market_data, cost=cost, shipping_cost=shipping_cost)
+    # 1. Fetch live market data from eBay
+    market_data = ebay.fetch(query)
+    
+    if not market_data['success']:
+        return jsonify(market_data), 200
 
-        send_discord_log(
-            query=search_term,
-            verdict=analysis['verdict'],
-            median=analysis['metrics']['median'],
-            profit=analysis['net_profit'],
-            roi=analysis['roi'],
-            image_url=market_data.get('recent_sales', [{}])[0].get('image')
-        )
+    # 2. Run decision intelligence logic
+    analysis = analyzer.analyze(
+        market_data=market_data,
+        cost_price=cost_price,
+        shipping_cost=shipping_cost
+    )
 
-        return jsonify({
-            "success": True,
-            "verdict": analysis['verdict'],
-            "color_code": analysis['color_code'],
-            "best_platform": analysis['best_platform'],
-            "time_to_sell": analysis['time_to_sell'],
-            "pricing_tiers": analysis['pricing_tiers'],
-            "recent_sales": market_data.get('recent_sales', []),
-            "financials": {"profit": analysis['net_profit'], "roi": analysis['roi']},
-            "metrics": analysis['metrics']
-        })
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+    return jsonify(analysis)
+
+@app.route('/marketplace-delete', methods=['GET', 'POST'])
+def marketplace_delete():
+    """
+    Handles eBay's Mandatory Marketplace Account Deletion notifications.
+    This stops the 404 errors in your Railway logs and ensures compliance.
+    """
+    if request.method == 'GET':
+        challenge_code = request.args.get('challenge_code')
+        verification_token = os.environ.get('EBAY_VERIFICATION_TOKEN')
+        endpoint = os.environ.get('EBAY_ENDPOINT')
+
+        if not challenge_code or not verification_token or not endpoint:
+            return "Missing configuration parameters", 400
+
+        # Create the response hash required by eBay's security handshake
+        sha256 = hashlib.sha256()
+        sha256.update(challenge_code.encode('utf-8'))
+        sha256.update(verification_token.encode('utf-8'))
+        sha256.update(endpoint.encode('utf-8'))
+        response_hash = sha256.hexdigest()
+
+        return jsonify({"challengeResponse": response_hash}), 200
+
+    if request.method == 'POST':
+        # Simply acknowledge receipt of the data deletion request
+        return "", 200
 
 if __name__ == '__main__':
+    # Bind to 0.0.0.0 and use Railway's PORT variable
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
