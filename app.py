@@ -5,7 +5,7 @@ from data_sources.ebay import EbayDataSource
 
 app = Flask(__name__)
 
-# Initialize only the eBay source to verify connection
+# Initialize ONLY the data source to prevent import crashes
 ebay = EbayDataSource()
 
 @app.route('/')
@@ -16,23 +16,32 @@ def index():
 def search():
     data = request.json
     query = data.get('query')
-
+    
+    # Minimal response to stop the frontend from hanging
     if not query:
-        return jsonify({"success": False, "error": "No query provided"}), 400
+        return jsonify({"success": False, "error": "No query"}), 400
 
-    # Fetch raw data to confirm Client ID and Secret are working
+    # Fetch raw eBay data
     market_data = ebay.fetch(query)
-    return jsonify(market_data)
+    
+    # If this returns data, your eBay keys are 100% correct
+    return jsonify({
+        "success": True,
+        "verdict": "CONNECTION TEST",
+        "color_code": "#3b82f6",
+        "financials": {"profit": 0, "roi": 0},
+        "recent_sales": market_data.get('recent_sales', []),
+        "raw_debug": market_data
+    })
 
 @app.route('/marketplace-delete', methods=['GET', 'POST'])
 def marketplace_delete():
+    """Satisfies eBay compliance to prevent API blocking."""
     if request.method == 'GET':
         challenge_code = request.args.get('challenge_code')
         verification_token = os.environ.get('EBAY_VERIFICATION_TOKEN')
         endpoint = os.environ.get('EBAY_ENDPOINT')
-        if not challenge_code or not verification_token or not endpoint:
-            return "Missing configuration", 400
-
+        
         sha256 = hashlib.sha256()
         sha256.update(challenge_code.encode('utf-8'))
         sha256.update(verification_token.encode('utf-8'))
