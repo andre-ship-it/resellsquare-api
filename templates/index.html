@@ -34,11 +34,23 @@
         
         #reader { width: 100% !important; border-radius: 1.5rem; overflow: hidden; background: #000; }
         .scanner-overlay { border: 2px solid rgba(255,255,255,0.1); border-radius: 2rem; position: relative; }
+
+        /* Social Button Styles */
+        .social-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 <body class="antialiased">
 
-    <div class="app-container pb-12">
+    <div class="app-container pb-12 flex flex-col">
         <nav class="glass-nav sticky top-0 z-50 px-6 py-4">
             <div class="max-w-xl mx-auto flex justify-between items-center text-white">
                 <div class="flex items-center gap-2">
@@ -49,7 +61,7 @@
             </div>
         </nav>
 
-        <main class="max-w-xl mx-auto px-4 py-8">
+        <main class="max-w-xl mx-auto px-4 py-8 flex-grow w-full">
             <div class="glass-card rounded-[2.5rem] p-8 mb-6 fade-up">
                 <form id="searchForm" class="space-y-6">
                     <div class="relative">
@@ -160,6 +172,27 @@
                 </div>
             </div>
         </main>
+
+        <footer class="w-full max-w-xl mx-auto px-6 py-12 mt-auto text-center">
+            <div class="flex justify-center gap-4 mb-8">
+                <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
+                    <i class="fa-brands fa-x-twitter text-xl"></i>
+                </a>
+                <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
+                    <i class="fa-brands fa-instagram text-xl"></i>
+                </a>
+                <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
+                    <i class="fa-brands fa-discord text-xl"></i>
+                </a>
+                <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
+                    <i class="fa-brands fa-tiktok text-xl"></i>
+                </a>
+            </div>
+            <div class="space-y-2">
+                <p class="text-[10px] font-black text-white uppercase tracking-[0.2em] opacity-40">ResellSquare Decision Intelligence</p>
+                <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest">© 2026 All Rights Reserved</p>
+            </div>
+        </footer>
     </div>
 
     <script src="https://unpkg.com/html5-qrcode"></script>
