@@ -27,6 +27,41 @@ class EbayDataSource:
             }
         )
         self.money_pattern = re.compile(r"\$\s?(\d[\d,]*(?:\.\d{1,2})?)")
+        self.sold_terms = ("sold", "completed", "ended")
+
+    def _is_generic_ebay_title(self, title):
+        lowered = (title or "").strip().lower()
+        generic_phrases = (
+            "for sale | ebay",
+            "for sale - ebay",
+            "shop on ebay",
+            "on ebay",
+        )
+        return any(phrase in lowered for phrase in generic_phrases)
+
+    def _is_likely_listing_url(self, href):
+        lowered = (href or "").lower()
+        return "/itm/" in lowered or "/p/" in lowered
+
+    def _trim_outliers(self, sales):
+        if len(sales) < 6:
+            return sales
+
+        sorted_prices = sorted(sale["price"] for sale in sales)
+        n = len(sorted_prices)
+        q1 = sorted_prices[n // 4]
+        q3 = sorted_prices[(3 * n) // 4]
+        iqr = q3 - q1
+        if iqr <= 0:
+            return sales
+
+        lower_bound = max(0.0, q1 - (1.5 * iqr))
+        upper_bound = q3 + (1.5 * iqr)
+        filtered = [
+            sale for sale in sales if lower_bound <= sale["price"] <= upper_bound
+        ]
+        # Avoid over-filtering small sets.
+        return filtered if len(filtered) >= 5 else sales
 
     def _parse_money_values(self, text):
         values = []
@@ -40,7 +75,9 @@ class EbayDataSource:
         return values
 
     def _build_success(self, prices, recent_sales):
-        prices = sorted(prices)
+        # Apply outlier filtering before median/count metrics.
+        recent_sales = self._trim_outliers(recent_sales)
+        prices = sorted(sale["price"] for sale in recent_sales)
         median = prices[len(prices) // 2]
         normalized_sales = []
         for sale in recent_sales[:20]:
@@ -76,16 +113,23 @@ class EbayDataSource:
                 continue
 
             title = title_el.get_text(" ", strip=True)
-            if not title or "Shop on eBay" in title:
+            if not title or self._is_generic_ebay_title(title):
                 continue
 
-            money_values = self._parse_money_values(price_el.get_text(" ", strip=True))
+            price_text = price_el.get_text(" ", strip=True)
+            # Skip listing ranges (e.g., "$7.25 to $250.00") to avoid noisy mixed comps.
+            if " to " in price_text.lower():
+                continue
+
+            money_values = self._parse_money_values(price_text)
             if not money_values:
                 continue
 
             price = money_values[0]
             prices.append(price)
-            sales.append({"title": title, "price": price})
+            sold_meta = item.get_text(" ", strip=True).lower()
+            date_label = "Sold" if any(t in sold_meta for t in self.sold_terms) else "Recent"
+            sales.append({"title": title, "price": price, "date": date_label})
 
             if len(prices) >= 20:
                 break
@@ -115,11 +159,22 @@ class EbayDataSource:
                             continue
                         seen.add(dedupe_key)
 
+                        if self._is_generic_ebay_title(title):
+                            continue
+                        if not self._is_likely_listing_url(href):
+                            continue
+
                         combined = f"{title} {body}"
+                        lowered = combined.lower()
+                        if not any(term in lowered for term in self.sold_terms):
+                            continue
+
                         values = self._parse_money_values(combined)
                         for value in values:
                             prices.append(value)
-                            sales.append({"title": title or "DDG Sale", "price": value})
+                            sales.append(
+                                {"title": title or "DDG Sale", "price": value, "date": "Sold"}
+                            )
                 if len(prices) >= 12:
                     break
             except Exception as search_error:
