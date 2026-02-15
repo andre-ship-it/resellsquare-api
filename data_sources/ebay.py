@@ -41,7 +41,7 @@ class EbayDataSource:
 
     def _is_likely_listing_url(self, href):
         lowered = (href or "").lower()
-        return "/itm/" in lowered or "/p/" in lowered
+        return "/itm/" in lowered or "/p/" in lowered or "ebay.com/itm" in lowered
 
     def _trim_outliers(self, sales):
         if len(sales) < 6:
@@ -138,6 +138,8 @@ class EbayDataSource:
 
     def _fetch_from_ddg(self, query):
         query_variants = [
+            f'site:ebay.com/itm/ "{query}" sold',
+            f'site:ebay.com/itm/ "{query}" ended',
             f'site:ebay.com "{query}" sold',
             f'site:ebay.com "{query}" completed listings',
             f"ebay sold {query}",
@@ -166,10 +168,15 @@ class EbayDataSource:
 
                         combined = f"{title} {body}"
                         lowered = combined.lower()
-                        if not any(term in lowered for term in self.sold_terms):
+                        values = self._parse_money_values(combined)
+                        if not values:
                             continue
 
-                        values = self._parse_money_values(combined)
+                        # Strict mode prefers explicit sold/completed/ended signals.
+                        has_sold_signal = any(term in lowered for term in self.sold_terms)
+                        if not has_sold_signal:
+                            continue
+
                         for value in values:
                             prices.append(value)
                             sales.append(
@@ -179,6 +186,41 @@ class EbayDataSource:
                     break
             except Exception as search_error:
                 logger.warning(f"DDG search attempt failed for '{search_query}': {search_error}")
+
+        if prices:
+            return prices, sales
+
+        # Relaxed fallback: still require likely listing URLs and real prices, but
+        # allow snippets without explicit sold keywords to avoid empty results.
+        for search_query in query_variants:
+            try:
+                with DDGS() as ddgs:
+                    for r in ddgs.text(search_query, max_results=25):
+                        title = (r.get("title") or "").strip()
+                        body = (r.get("body") or "").strip()
+                        href = (r.get("href") or "").strip()
+                        dedupe_key = (title.lower(), href.lower(), "relaxed")
+                        if dedupe_key in seen:
+                            continue
+                        seen.add(dedupe_key)
+
+                        if self._is_generic_ebay_title(title):
+                            continue
+                        if not self._is_likely_listing_url(href):
+                            continue
+
+                        values = self._parse_money_values(f"{title} {body}")
+                        for value in values:
+                            prices.append(value)
+                            sales.append(
+                                {"title": title or "DDG Listing", "price": value, "date": "Recent"}
+                            )
+                if len(prices) >= 10:
+                    break
+            except Exception as search_error:
+                logger.warning(
+                    f"DDG relaxed search attempt failed for '{search_query}': {search_error}"
+                )
 
         return prices, sales
 
