@@ -174,16 +174,16 @@
 
         <footer class="w-full max-w-xl mx-auto px-6 py-12 mt-auto text-center">
             <div class="flex justify-center gap-4 mb-8">
-                <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
+                <a href="https://x.com/resellsquare" target="_blank" rel="noopener noreferrer" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
                     <i class="fa-brands fa-x-twitter text-xl"></i>
                 </a>
-                <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
+                <a href="https://instagram.com/resellsquareapp" target="_blank" rel="noopener noreferrer" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
                     <i class="fa-brands fa-instagram text-xl"></i>
                 </a>
-                <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
+                <a href="https://discord.com/channels/1471585230396850328/1471585231197700098" target="_blank" rel="noopener noreferrer" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
                     <i class="fa-brands fa-discord text-xl"></i>
                 </a>
-                <a href="#" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
+                <a href="https://tiktok.com/resellsquareapp" target="_blank" rel="noopener noreferrer" class="social-btn w-12 h-12 rounded-2xl flex items-center justify-center text-white">
                     <i class="fa-brands fa-tiktok text-xl"></i>
                 </a>
             </div>
@@ -198,6 +198,19 @@
     <script>
         let currentPrices = {};
         let html5QrCode;
+
+        // Ensure social links still navigate if a browser blocks target=_blank popups.
+        document.querySelectorAll('.social-btn').forEach((link) => {
+            link.addEventListener('click', (e) => {
+                const url = link.getAttribute('href');
+                if (!url) return;
+                e.preventDefault();
+                const opened = window.open(url, '_blank', 'noopener,noreferrer');
+                if (!opened) {
+                    window.location.href = url;
+                }
+            });
+        });
 
         function updatePrice(tier) {
             document.getElementById('displayPrice').innerText = `$${currentPrices[tier].toFixed(2)}`;
