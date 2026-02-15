@@ -1,34 +1,52 @@
 import os
-from flask import Flask, render_template, request, jsonify
-from data_sources.ebay import EbayDataSource
+
+from flask import Flask, jsonify, render_template, request
+
 from analysis import ResellAnalyzer
+from data_sources.ebay import EbayDataSource
 
 app = Flask(__name__)
 ebay = EbayDataSource()
 analyzer = ResellAnalyzer()
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-@app.route('/api/search', methods=['POST'])
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/api/search", methods=["POST"])
 def search():
     try:
-        data = request.json
-        query = data.get('query')
-        cost = float(data.get('cost_price', 0) or 0)
-        ship = float(data.get('shipping_cost', 0) or 0)
+        data = request.get_json(silent=True) or {}
+        query = data.get("query")
+        if not query or not str(query).strip():
+            return jsonify({"success": False, "error": "Query is required."}), 400
 
-        # 1. Fetch via Agentic Search (Web Scrape + OpenAI)
+        cost = float(data.get("cost_price", 0) or 0)
+        ship = float(data.get("shipping_cost", 0) or 0)
+
         market_data = ebay.fetch(query)
-        
-        # 2. Run the decision engine
+
+        if not market_data.get("success", False):
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": market_data.get("error", "Unknown fetch error."),
+                        "source": "ebay_agent",
+                        "fallback": analyzer.fallback_response(),
+                    }
+                ),
+                502,
+            )
+
         result = analyzer.analyze(market_data, cost, ship)
-        
         return jsonify(result)
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="0.0.0.0", port=port)
