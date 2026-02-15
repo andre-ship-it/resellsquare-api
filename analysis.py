@@ -1,4 +1,6 @@
 class ResellAnalyzer:
+    MIN_COMPS_FOR_CONFIDENCE = 5
+
     def _time_to_sell(self, count):
         if count >= 10:
             return "1–2 weeks"
@@ -12,9 +14,12 @@ class ResellAnalyzer:
         metrics = market_data.get("metrics", {})
         median = float(metrics.get("median", 0.0))
         count = int(metrics.get("count", 0))
+        recent_sales = market_data.get("recent_sales", []) or []
 
         if median <= 0:
             return self.fallback_response()
+        if count < self.MIN_COMPS_FOR_CONFIDENCE:
+            return self.low_confidence_response(median, recent_sales, count)
 
         # Resell Logic (eBay Fees approx 13.25% + $0.30)
         fees = (median * 0.1325) + 0.30
@@ -45,8 +50,27 @@ class ResellAnalyzer:
                 "balanced": round(median, 2),
                 "max": round(median * 1.15, 2),
             },
-            "recent_sales": market_data.get("recent_sales", []) or [],
+            "recent_sales": recent_sales,
         }
+
+    def low_confidence_response(self, median, recent_sales, count):
+        response = self.fallback_response()
+        response.update(
+            {
+                "market_consensus": f"${median:,.2f}",
+                "target_price": median,
+                "best_platform": "eBay",
+                "demand_velocity": "Low Confidence",
+                "time_to_sell": self._time_to_sell(count),
+                "pricing_tiers": {
+                    "fast": round(median * 0.90, 2),
+                    "balanced": round(median, 2),
+                    "max": round(median * 1.15, 2),
+                },
+                "recent_sales": recent_sales,
+            }
+        )
+        return response
 
     def fallback_response(self):
         return {
