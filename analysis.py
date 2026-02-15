@@ -1,4 +1,13 @@
 class ResellAnalyzer:
+    def _time_to_sell(self, count):
+        if count >= 10:
+            return "1–2 weeks"
+        if count >= 5:
+            return "2–4 weeks"
+        if count > 0:
+            return "4–8 weeks"
+        return "No Data"
+
     def analyze(self, market_data, cost_price=0, shipping_cost=0):
         metrics = market_data.get("metrics", {})
         median = float(metrics.get("median", 0.0))
@@ -16,7 +25,9 @@ class ResellAnalyzer:
             else 0
         )
 
-        # This dictionary maps directly to your HTML/JS labels
+        time_to_sell = self._time_to_sell(count)
+
+        # Include both legacy and current keys so frontend templates remain compatible.
         return {
             "success": True,
             "verdict": "LIST IT" if net_profit > 10 else "ABANDON",
@@ -25,14 +36,16 @@ class ResellAnalyzer:
             "target_price": median,
             "best_platform": "eBay",
             "demand_velocity": "High" if count > 5 else "Moderate",
+            "time_to_sell": time_to_sell,
             "net_profit": net_profit,
             "roi": roi,
+            "financials": {"profit": net_profit, "roi": roi},
             "pricing_tiers": {
                 "fast": round(median * 0.90, 2),
                 "balanced": round(median, 2),
                 "max": round(median * 1.15, 2),
             },
-            "recent_sales": market_data.get("recent_sales", []),
+            "recent_sales": market_data.get("recent_sales", []) or [],
         }
 
     def fallback_response(self):
@@ -44,7 +57,10 @@ class ResellAnalyzer:
             "target_price": 0.0,
             "best_platform": "Unknown",
             "demand_velocity": "No Data",
+            "time_to_sell": "No Data",
             "net_profit": 0,
             "roi": 0,
+            "financials": {"profit": 0, "roi": 0},
             "pricing_tiers": {"fast": 0, "balanced": 0, "max": 0},
+            "recent_sales": [],
         }

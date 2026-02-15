@@ -29,17 +29,16 @@ def search():
         market_data = ebay.fetch(query)
 
         if not market_data.get("success", False):
-            return (
-                jsonify(
-                    {
-                        "success": False,
-                        "error": market_data.get("error", "Unknown fetch error."),
-                        "source": "ebay_agent",
-                        "fallback": analyzer.fallback_response(),
-                    }
-                ),
-                502,
+            fallback = analyzer.fallback_response()
+            fallback.update(
+                {
+                    "success": False,
+                    "error": market_data.get("error", "Unknown fetch error."),
+                    "source": "ebay_agent",
+                }
             )
+            # Return a UI-compatible shape so frontend labels do not become undefined.
+            return jsonify(fallback), 502
 
         result = analyzer.analyze(market_data, cost, ship)
         return jsonify(result)

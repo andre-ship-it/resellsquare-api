@@ -42,10 +42,20 @@ class EbayDataSource:
     def _build_success(self, prices, recent_sales):
         prices = sorted(prices)
         median = prices[len(prices) // 2]
+        normalized_sales = []
+        for sale in recent_sales[:20]:
+            normalized_sales.append(
+                {
+                    "title": sale.get("title", "Sale"),
+                    "price": float(sale.get("price", 0) or 0),
+                    "date": sale.get("date") or "Recent",
+                    "image": sale.get("image"),
+                }
+            )
         return {
             "success": True,
             "metrics": {"median": median, "count": len(prices)},
-            "recent_sales": recent_sales[:20],
+            "recent_sales": normalized_sales,
         }
 
     def _fetch_from_ebay_html(self, query):
